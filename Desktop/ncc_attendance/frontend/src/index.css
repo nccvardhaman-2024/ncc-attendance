@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --ncc-navy: #101b66;
+  --ncc-deep: #08113f;
+  --ncc-blue: #2457a7;
+  --ncc-sky: #5795c7;
+  --ncc-red: #ed1c24;
+  --ncc-red-dark: #c8121a;
+  --ncc-ice: #eef6fc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(87, 149, 199, 0.13), transparent 25rem),
+    radial-gradient(circle at 92% 82%, rgba(237, 28, 36, 0.07), transparent 22rem),
+    #f5f8fc;
+  color: #17213f;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(237, 28, 36, 0.2);
+  color: var(--ncc-deep);
+}
+
+@layer components {
+  .ncc-panel {
+    @apply rounded-[2rem] border border-white/80 bg-white/95 shadow-[0_24px_70px_rgba(16,27,102,0.10)];
+  }
+
+  .ncc-kicker {
+    @apply text-xs font-bold uppercase tracking-[0.28em] text-[#2457a7];
+  }
+
+  .ncc-input {
+    @apply mt-2 w-full rounded-2xl border border-[#c9d8ea] bg-white px-4 py-3 text-[#101b66] outline-none transition placeholder:text-slate-400 focus:border-[#2457a7] focus:ring-4 focus:ring-[#5795c7]/20;
+  }
+
+  .ncc-primary {
+    @apply rounded-2xl bg-[#ed1c24] px-6 py-3 text-sm font-bold text-white shadow-[0_12px_26px_rgba(237,28,36,0.22)] transition hover:-translate-y-0.5 hover:bg-[#c8121a] hover:shadow-[0_16px_32px_rgba(237,28,36,0.28)] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .ncc-secondary {
+    @apply rounded-2xl border border-[#a9c8e2] bg-white px-6 py-3 text-sm font-bold text-[#101b66] transition hover:border-[#2457a7] hover:bg-[#eef6fc];
+  }
+
+  .ncc-card {
+    @apply rounded-3xl border border-[#d9e6f1] bg-[#f7fbff] p-6;
+  }
+}
+
+/* Normalize legacy page utilities into the NCC palette. */
+@layer utilities {
+  .border-yellow-500,
+  .border-yellow-400,
+  .border-yellow-300 {
+    border-color: var(--ncc-red) !important;
+  }
+
+  .border-emerald-500 {
+    border-color: var(--ncc-blue) !important;
+  }
+
+  .bg-yellow-500,
+  .bg-yellow-400 {
+    background-color: var(--ncc-red) !important;
+    color: white !important;
+  }
+
+  .bg-yellow-50,
+  .bg-yellow-100,
+  .bg-amber-50,
+  .bg-emerald-50,
+  .bg-emerald-100 {
+    background-color: var(--ncc-ice) !important;
+  }
+
+  .bg-blue-50 {
+    background-color: #f2f8fd !important;
+  }
+
+  .bg-blue-900 {
+    background-color: var(--ncc-navy) !important;
+  }
+
+  .bg-blue-800 {
+    background-color: var(--ncc-blue) !important;
+  }
+
+  .text-yellow-300,
+  .text-yellow-400,
+  .text-yellow-600,
+  .text-yellow-800,
+  .text-amber-700,
+  .text-emerald-700 {
+    color: var(--ncc-blue) !important;
+  }
+
+  .hover\:bg-yellow-400:hover {
+    background-color: var(--ncc-red-dark) !important;
+  }
+
+  .focus\:border-yellow-300:focus,
+  .focus\:border-emerald-500:focus {
+    border-color: var(--ncc-blue) !important;
+  }
+
+  .focus\:ring-yellow-500\/50:focus {
+    --tw-ring-color: rgba(87, 149, 199, 0.24) !important;
+  }
+
+  .text-blue-900 {
+    color: var(--ncc-navy) !important;
+  }
+
+  .text-blue-600,
+  .text-blue-700,
+  .text-emerald-600 {
+    color: var(--ncc-blue) !important;
+  }
+}

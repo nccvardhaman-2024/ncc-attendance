@@ -1,0 +1,51 @@
+[
+  {
+    "regimentalNumber": "TS2024SDIA0200623",
+    "name": "Challa Mallikarjun Reddy",
+    "unit": "2T",
+    "role": "cadet",
+    "passwordHash": "5728bf14673a8ba0f38017d321c11e18341b8c1fa2a1e9b67e30c2d89efe9dfc"
+  },
+  {
+    "regimentalNumber": "TS2024SDIA0200618",
+    "name": "Jarpula Raghuram",
+    "unit": "2T",
+    "role": "cadet",
+    "passwordHash": "c2e6c0afe7b49314dd8eb94056eab41b2842de1c15b00d1ca06fefda09bc86f6"
+  },
+  {
+    "regimentalNumber": "TS2024SDIA0200626",
+    "name": "Mididoddi Saikumar",
+    "unit": "2T",
+    "role": "cadet",
+    "passwordHash": "1fd69d58a69f8ae973ec9ab3bb619b5bdf1940fac77ed9521d1cb91e13a3f612"
+  },
+  {
+    "regimentalNumber": "TS2024SWIA0200589",
+    "name": "Patlolla  Raghavika",
+    "unit": "2T",
+    "role": "cadet",
+    "passwordHash": "2ac3cceec56272eab3d48979679f8a9cc109ca2233e045e9508da4b9f7cbfe38"
+  },
+  {
+    "regimentalNumber": "TS2025SDIA0201559",
+    "name": "Lakka Sriteja",
+    "unit": "2T",
+    "role": "cadet",
+    "passwordHash": "41ef28546c0186b8af2d018e0c73b9a7beadd0563c94da9897992e7012d635da"
+  },
+  {
+    "regimentalNumber": "TS2025SWIA0201543",
+    "name": "Lavuri Vasundhara",
+    "unit": "2T",
+    "role": "cadet",
+    "passwordHash": "c2cdbf8f26939b15cad89e4c508fc01c5b2d9f145bf7aa20ce73070730c523b5"
+  },
+  {
+    "regimentalNumber": "TS2024SDIA0200628",
+    "name": "INUGALA ARAVIND REDDY",
+    "unit": "2T",
+    "role": "cadet",
+    "passwordHash": "3279606d58d699116feaa727efcf2eb26ad98aa86c54a70be622d0e17a3ad666"
+  }
+]
