@@ -16,22 +16,25 @@ export default function AdminDashboard({ user, token, section = 'home' }) {
         return <AnalyticsPage token={token} />;
       default:
         return (
-          <div className="ncc-panel space-y-6 border-t-4 border-[#ed1c24] p-5 sm:p-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="ncc-panel space-y-7 p-5 sm:p-8">
+            <div className="relative overflow-hidden rounded-2xl bg-[linear-gradient(120deg,#070d35,#111b5f_60%,#1c55c9)] p-6 text-white sm:p-8">
+              <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full border-[38px] border-white/5" />
               <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-blue-600 font-bold">Admin dashboard</p>
-                <h1 className="mt-3 text-3xl font-bold text-blue-900">Hello, {user.name}</h1>
-                <p className="mt-2 max-w-2xl text-slate-700">Use the navigation menu to add cadets, record attendance, manage cadet profiles, or view analytics.</p>
+                <p className="text-xs font-extrabold uppercase tracking-[0.3em] text-[#8dd2ff]">Admin dashboard</p>
+                <h1 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">Hello, {user.name}</h1>
+                <p className="mt-3 max-w-2xl text-blue-100/75">Use the navigation menu to add cadets, record attendance, manage cadet profiles, or view analytics.</p>
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-3xl border-l-4 border-[#ed1c24] border border-[#d9e6f1] bg-blue-50 p-6">
-                <p className="text-sm font-bold text-blue-900">Start here</p>
+              <div className="group relative overflow-hidden rounded-2xl border border-[#d9e6f1] bg-gradient-to-br from-white to-[#edf6ff] p-6 shadow-[0_10px_28px_rgba(17,27,95,.06)] transition hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,27,95,.11)]">
+                <span className="absolute right-5 top-4 font-display text-5xl font-extrabold text-[#e4eef9]">01</span>
+                <p className="relative text-sm font-extrabold uppercase tracking-[0.14em] text-[#f02232]">Start here</p>
                 <p className="mt-2 text-sm text-slate-700">Add cadets before recording attendance. Each cadet receives a regimental number and login password.</p>
               </div>
-              <div className="rounded-3xl border-l-4 border-[#2457a7] border border-[#d9e6f1] bg-blue-50 p-6">
-                <p className="text-sm font-bold text-blue-900">Attendance</p>
+              <div className="group relative overflow-hidden rounded-2xl border border-[#d9e6f1] bg-gradient-to-br from-white to-[#edf6ff] p-6 shadow-[0_10px_28px_rgba(17,27,95,.06)] transition hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,27,95,.11)]">
+                <span className="absolute right-5 top-4 font-display text-5xl font-extrabold text-[#e4eef9]">02</span>
+                <p className="relative text-sm font-extrabold uppercase tracking-[0.14em] text-[#1c55c9]">Attendance</p>
                 <p className="mt-2 text-sm text-slate-700">Record attendance for each cadet with a date and status, then review totals in analytics.</p>
               </div>
             </div>

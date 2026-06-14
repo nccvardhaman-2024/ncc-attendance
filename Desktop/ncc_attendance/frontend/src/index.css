@@ -6,13 +6,15 @@
 
 :root {
   color-scheme: light;
-  --ncc-navy: #101b66;
-  --ncc-deep: #08113f;
-  --ncc-blue: #2457a7;
-  --ncc-sky: #5795c7;
-  --ncc-red: #ed1c24;
-  --ncc-red-dark: #c8121a;
-  --ncc-ice: #eef6fc;
+  --ncc-navy: #111b5f;
+  --ncc-deep: #070d35;
+  --ncc-blue: #1c55c9;
+  --ncc-electric: #2878ff;
+  --ncc-sky: #5eb8f2;
+  --ncc-red: #f02232;
+  --ncc-red-dark: #c81020;
+  --ncc-ice: #edf6ff;
+  --ncc-ink: #111936;
 }
 
 * {
@@ -28,10 +30,13 @@ body {
   min-width: 320px;
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   background:
-    radial-gradient(circle at 8% 12%, rgba(87, 149, 199, 0.13), transparent 25rem),
-    radial-gradient(circle at 92% 82%, rgba(237, 28, 36, 0.07), transparent 22rem),
-    #f5f8fc;
-  color: #17213f;
+    linear-gradient(rgba(28, 85, 201, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(28, 85, 201, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 10% 5%, rgba(40, 120, 255, 0.17), transparent 25rem),
+    radial-gradient(circle at 93% 80%, rgba(240, 34, 50, 0.1), transparent 26rem),
+    #f4f7fc;
+  background-size: 36px 36px, 36px 36px, auto, auto, auto;
+  color: var(--ncc-ink);
 }
 
 h1,
@@ -39,6 +44,7 @@ h2,
 h3,
 .font-display {
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.025em;
 }
 
 button,
@@ -53,37 +59,71 @@ button {
 }
 
 ::selection {
-  background: rgba(237, 28, 36, 0.2);
+  background: rgba(240, 34, 50, 0.2);
   color: var(--ncc-deep);
 }
 
 @layer components {
   .ncc-panel {
-    @apply rounded-[2rem] border border-white/80 bg-white/95 shadow-[0_24px_70px_rgba(16,27,102,0.10)];
+    @apply relative overflow-hidden rounded-[1.6rem] border border-white/80 bg-white/90 shadow-[0_24px_70px_rgba(17,27,95,0.12)] backdrop-blur-xl;
+  }
+
+  .ncc-panel::before {
+    content: '';
+    @apply absolute inset-x-0 top-0 h-1;
+    background: linear-gradient(90deg, var(--ncc-red), var(--ncc-electric), var(--ncc-sky));
   }
 
   .ncc-kicker {
-    @apply text-xs font-bold uppercase tracking-[0.28em] text-[#2457a7];
+    @apply inline-flex items-center gap-2 text-[0.7rem] font-extrabold uppercase tracking-[0.3em] text-[#1c55c9];
+  }
+
+  .ncc-kicker::before {
+    content: '';
+    @apply h-2 w-2 rounded-sm bg-[#f02232] shadow-[0_0_0_4px_rgba(240,34,50,.10)];
   }
 
   .ncc-input {
-    @apply mt-2 w-full rounded-2xl border border-[#c9d8ea] bg-white px-4 py-3 text-[#101b66] outline-none transition placeholder:text-slate-400 focus:border-[#2457a7] focus:ring-4 focus:ring-[#5795c7]/20;
+    @apply mt-2 w-full rounded-xl border border-[#c7d7ec] bg-[#f8fbff] px-4 py-3 text-[#111b5f] outline-none transition placeholder:text-slate-400 hover:border-[#8fb4e7] focus:border-[#2878ff] focus:bg-white focus:ring-4 focus:ring-[#2878ff]/15;
   }
 
   .ncc-primary {
-    @apply rounded-2xl bg-[#ed1c24] px-6 py-3 text-sm font-bold text-white shadow-[0_12px_26px_rgba(237,28,36,0.22)] transition hover:-translate-y-0.5 hover:bg-[#c8121a] hover:shadow-[0_16px_32px_rgba(237,28,36,0.28)] disabled:cursor-not-allowed disabled:opacity-60;
+    @apply rounded-xl bg-[#f02232] px-6 py-3 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(240,34,50,0.28)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#c81020] hover:shadow-[0_17px_34px_rgba(240,34,50,0.35)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .ncc-secondary {
-    @apply rounded-2xl border border-[#a9c8e2] bg-white px-6 py-3 text-sm font-bold text-[#101b66] transition hover:border-[#2457a7] hover:bg-[#eef6fc];
+    @apply rounded-xl border border-[#a9c8e2] bg-white px-6 py-3 text-sm font-bold text-[#111b5f] transition hover:border-[#2878ff] hover:bg-[#edf6ff];
   }
 
   .ncc-card {
-    @apply rounded-3xl border border-[#d9e6f1] bg-[#f7fbff] p-6;
+    @apply rounded-2xl border border-[#d9e6f3] bg-gradient-to-br from-white to-[#f1f7ff] p-6 shadow-[0_12px_30px_rgba(17,27,95,.07)];
   }
 }
 
-/* Normalize legacy page utilities into the NCC palette. */
+.ncc-app-header {
+  background: linear-gradient(105deg, rgba(7, 13, 53, 0.97), rgba(17, 27, 95, 0.96) 65%, rgba(28, 85, 201, 0.94));
+  border-bottom: 1px solid rgba(94, 184, 242, 0.25);
+  box-shadow: 0 14px 35px rgba(7, 13, 53, 0.18);
+}
+
+.ncc-app-header::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ncc-red), var(--ncc-electric), transparent 75%);
+}
+
+.ncc-page {
+  animation: pageReveal 0.35s ease-out both;
+}
+
+@keyframes pageReveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Restyle the original dashboard utility combinations as one visual system. */
 @layer utilities {
   .border-yellow-500,
   .border-yellow-400,
@@ -97,7 +137,7 @@ button {
 
   .bg-yellow-500,
   .bg-yellow-400 {
-    background-color: var(--ncc-red) !important;
+    background: linear-gradient(135deg, var(--ncc-red), #ff4552) !important;
     color: white !important;
   }
 
@@ -106,15 +146,15 @@ button {
   .bg-amber-50,
   .bg-emerald-50,
   .bg-emerald-100 {
-    background-color: var(--ncc-ice) !important;
+    background-color: #edf6ff !important;
   }
 
   .bg-blue-50 {
-    background-color: #f2f8fd !important;
+    background: linear-gradient(145deg, #f7fbff, #eaf4ff) !important;
   }
 
   .bg-blue-900 {
-    background-color: var(--ncc-navy) !important;
+    background: linear-gradient(135deg, var(--ncc-navy), var(--ncc-blue)) !important;
   }
 
   .bg-blue-800 {
@@ -131,16 +171,16 @@ button {
   }
 
   .hover\:bg-yellow-400:hover {
-    background-color: var(--ncc-red-dark) !important;
+    background: linear-gradient(135deg, var(--ncc-red-dark), var(--ncc-red)) !important;
   }
 
   .focus\:border-yellow-300:focus,
   .focus\:border-emerald-500:focus {
-    border-color: var(--ncc-blue) !important;
+    border-color: var(--ncc-electric) !important;
   }
 
   .focus\:ring-yellow-500\/50:focus {
-    --tw-ring-color: rgba(87, 149, 199, 0.24) !important;
+    --tw-ring-color: rgba(40, 120, 255, 0.18) !important;
   }
 
   .text-blue-900 {
@@ -151,5 +191,35 @@ button {
   .text-blue-700,
   .text-emerald-600 {
     color: var(--ncc-blue) !important;
+  }
+
+  .shadow-lg.border-t-4,
+  .shadow-lg.border-t-4.border-yellow-500 {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(210, 224, 241, 0.9) !important;
+    border-top-width: 1px !important;
+    border-radius: 1.6rem !important;
+    background: rgba(255, 255, 255, 0.93) !important;
+    box-shadow: 0 24px 65px rgba(17, 27, 95, 0.11) !important;
+    backdrop-filter: blur(16px);
+  }
+
+  .shadow-lg.border-t-4::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--ncc-red), var(--ncc-electric), var(--ncc-sky));
+  }
+
+  .rounded-3xl {
+    border-radius: 1.15rem !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ncc-page {
+    animation: none;
   }
 }

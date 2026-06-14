@@ -225,7 +225,7 @@ export default function AttendancePage({ token }) {
         </div>
 
         <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-blue-50">
-          <div className="grid gap-px bg-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 sm:grid-cols-[3fr_1fr]">
+          <div className="grid gap-px bg-[linear-gradient(110deg,#070d35,#111b5f_70%,#1c55c9)] px-4 py-3 text-sm font-semibold text-white sm:grid-cols-[3fr_1fr]">
             <span>Cadet ({filteredCadets.length})</span>
             <span className="text-right">Present / Absent</span>
           </div>
@@ -282,7 +282,7 @@ export default function AttendancePage({ token }) {
                 <button
                   key={sheetDate}
                   onClick={() => loadSheet(sheetDate)}
-                  className={`w-full rounded-3xl border px-4 py-3 text-left text-sm transition ${selectedDate === sheetDate ? 'border-yellow-500 bg-blue-50 text-blue-900 font-bold border-2' : 'border-slate-200 bg-white text-slate-800 hover:bg-blue-50'}`}
+                  className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition ${selectedDate === sheetDate ? 'border-[#2878ff] bg-[#edf6ff] text-[#111b5f] font-bold shadow-[0_8px_20px_rgba(40,120,255,.12)]' : 'border-slate-200 bg-white text-slate-800 hover:border-[#9ac2ed] hover:bg-blue-50'}`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span>{sheetDate}</span>

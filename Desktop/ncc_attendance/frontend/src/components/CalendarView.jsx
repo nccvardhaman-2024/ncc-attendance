@@ -11,7 +11,7 @@ export default function CalendarView({ attendance }) {
     <div className="mt-6 space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
         {dates.map((record) => (
-          <div key={record.date} className="rounded-3xl border border-[#d9e6f1] bg-white p-4 shadow-sm">
+          <div key={record.date} className="rounded-2xl border border-[#d9e6f1] bg-white p-4 shadow-[0_8px_22px_rgba(17,27,95,.06)] transition hover:-translate-y-0.5 hover:border-[#9ac2ed]">
             <p className="text-sm text-slate-500">{record.date}</p>
             <div className={`mt-3 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${statusClasses[record.status] || 'bg-slate-200 text-slate-800'}`}>
               {record.status}

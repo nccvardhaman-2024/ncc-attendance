@@ -98,16 +98,16 @@ function App() {
   return (
     <div className="relative isolate min-h-screen overflow-x-hidden text-slate-900">
       <PageWatermark />
-      {!isLoginScreen && <header className="sticky top-0 z-20 border-b border-[#d9e6f1] bg-white/90 backdrop-blur-xl">
+      {!isLoginScreen && <header className="ncc-app-header sticky top-0 z-20">
         <div className="mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 sm:flex sm:flex-wrap sm:justify-between sm:px-6 sm:py-4 lg:px-8">
           <div className="flex items-center gap-3">
             <Logo className="h-11 w-11" />
             <div>
-              <p className="font-display text-sm font-extrabold text-[#101b66]">NCC Vardhaman</p>
+              <p className="font-display text-sm font-extrabold text-white">NCC Vardhaman</p>
               {user ? (
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#5795c7]">{user.role === 'admin' ? 'Admin command' : 'Cadet portal'}</p>
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8dd2ff]">{user.role === 'admin' ? 'Admin command' : 'Cadet portal'}</p>
               ) : (
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#5795c7]">Attendance command</p>
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8dd2ff]">Attendance command</p>
               )}
             </div>
           </div>
@@ -116,7 +116,7 @@ function App() {
             <>
               <button
                 type="button"
-                className="col-start-2 row-start-1 inline-flex items-center gap-2 rounded-xl border border-[#c9d8ea] bg-white px-3 py-2 text-sm font-bold text-[#101b66] shadow-sm transition hover:bg-[#eef6fc] lg:hidden"
+                className="col-start-2 row-start-1 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-white/20 lg:hidden"
                 onClick={() => setMobileMenuOpen((open) => !open)}
               >
                 Menu
@@ -128,16 +128,16 @@ function App() {
                   <button
                     key={item.key}
                     onClick={() => handleNavigate(item.key)}
-                    className={`rounded-xl px-4 py-2 text-sm font-bold transition ${dashboardSection === item.key ? 'bg-[#101b66] text-white shadow-md' : 'text-slate-600 hover:bg-[#eef6fc] hover:text-[#101b66]'}`}
+                    className={`rounded-xl px-4 py-2 text-sm font-bold transition ${dashboardSection === item.key ? 'bg-white text-[#111b5f] shadow-[0_8px_20px_rgba(0,0,0,.18)]' : 'text-blue-100 hover:bg-white/10 hover:text-white'}`}
                   >
                     {item.label}
                   </button>
                 ))}
               </nav>
 
-              <div className="col-span-2 flex items-center justify-between gap-3 border-t border-[#e5edf5] pt-3 sm:col-auto sm:border-0 sm:pt-0">
-                <span className="hidden sm:inline text-sm text-slate-600">Welcome, {user.name}</span>
-                <button onClick={handleLogout} className="ncc-primary !rounded-xl !px-4 !py-2.5 sm:!px-5">
+              <div className="col-span-2 flex items-center justify-between gap-3 border-t border-white/15 pt-3 sm:col-auto sm:border-0 sm:pt-0">
+                <span className="hidden sm:inline text-sm text-blue-100">Welcome, {user.name}</span>
+                <button onClick={handleLogout} className="ncc-primary !px-4 !py-2.5 sm:!px-5">
                   Logout
                 </button>
               </div>
@@ -166,7 +166,7 @@ function App() {
         )}
       </header>}
 
-      <main className={`relative z-10 mx-auto w-full ${isLoginScreen ? 'max-w-[1600px] p-0 sm:p-4' : 'max-w-7xl px-4 py-6 sm:px-6 lg:px-8'}`}>{renderContent()}</main>
+      <main className={`ncc-page relative z-10 mx-auto w-full ${isLoginScreen ? 'max-w-[1600px] p-0 sm:p-4' : 'max-w-7xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8'}`}>{renderContent()}</main>
 
       {error && (
         <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-rose-500 px-5 py-3 text-white shadow-xl">
