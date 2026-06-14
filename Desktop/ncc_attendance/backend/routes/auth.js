@@ -4,8 +4,8 @@ const crypto = require('crypto');
 const { getUsers } = require('../services/dataStore');
 const { JWT_SECRET } = require('../middleware/auth');
 
-const ADMIN_REGIMENTAL = process.env.ADMIN_REGIMENTAL || 'NCCADMIN01';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_REGIMENTAL = process.env.ADMIN_REGIMENTAL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const router = express.Router();
 
