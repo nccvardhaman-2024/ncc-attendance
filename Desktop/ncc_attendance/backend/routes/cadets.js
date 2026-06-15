@@ -1,24 +1,24 @@
 const express = require('express');
 const { authenticate, authorizeAdmin } = require('../middleware/auth');
-const { getAttendance, getUsers, saveUsers } = require('../services/dataStore');
-const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const Attendance = require('../models/Attendance');
+const User = require('../models/User');
 
 const router = express.Router();
 
 function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
+  return bcrypt.hashSync(password, 12);
 }
 
 router.use(authenticate);
 router.use(authorizeAdmin);
 
-router.get('/', (req, res) => {
-  const users = getUsers();
-  const attendance = getAttendance();
+router.get('/', async (req, res) => {
+  const users = await User.find({ role: 'cadet' }).lean();
+  const attendance = await Attendance.find({}).lean();
   const today = new Date().toISOString().slice(0, 10);
 
   const cadets = users
-    .filter((user) => user.role === 'cadet')
     .map(({ regimentalNumber, name, unit }) => {
       const records = attendance.filter((record) => record.regimentalNumber === regimentalNumber);
       const present = records.filter((record) => record.status === 'Present').length;
@@ -39,75 +39,74 @@ router.get('/', (req, res) => {
   res.json({ cadets });
 });
 
-router.post('/', (req, res) => {
-  const { regimentalNumber, name, unit, password } = req.body;
+router.post('/', async (req, res) => {
+  const regimentalNumber = String(req.body.regimentalNumber || '').trim();
+  const name = String(req.body.name || '').trim();
+  const unit = String(req.body.unit || '').trim();
+  const password = String(req.body.password || '');
+
   if (!regimentalNumber || !name || !unit || !password) {
     return res.status(400).json({ error: 'All cadet details are required' });
   }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Cadet password must be at least 8 characters' });
+  }
 
-  const users = getUsers();
-  const existing = users.find((item) => item.regimentalNumber === regimentalNumber);
+  const existing = await User.findOne({ regimentalNumber });
   if (existing) {
     return res.status(409).json({ error: 'Regimental number already exists' });
   }
 
-  const cadet = {
+  const cadet = await User.create({
     regimentalNumber,
     name,
     unit,
     role: 'cadet',
     passwordHash: hashPassword(password)
-  };
+  });
 
-  users.push(cadet);
-  saveUsers(users);
-
-  res.status(201).json({ cadet: { regimentalNumber, name, unit } });
+  res.status(201).json({ cadet: { regimentalNumber: cadet.regimentalNumber, name: cadet.name, unit: cadet.unit } });
 });
 
-router.put('/:regimentalNumber', (req, res) => {
+router.put('/:regimentalNumber', async (req, res) => {
   const originalRegimentalNumber = req.params.regimentalNumber;
-  const { regimentalNumber, name, unit, password } = req.body;
+  const regimentalNumber = String(req.body.regimentalNumber || '').trim();
+  const name = String(req.body.name || '').trim();
+  const unit = String(req.body.unit || '').trim();
+  const password = String(req.body.password || '');
+
   if (!regimentalNumber || !name || !unit) {
     return res.status(400).json({ error: 'Regimental number, name, and unit are required' });
   }
+  if (password && password.length < 8) {
+    return res.status(400).json({ error: 'New password must be at least 8 characters' });
+  }
 
-  const users = getUsers();
-  const cadetIndex = users.findIndex((item) => item.regimentalNumber === originalRegimentalNumber && item.role === 'cadet');
-  if (cadetIndex < 0) {
+  const cadet = await User.findOne({ regimentalNumber: originalRegimentalNumber, role: 'cadet' });
+  if (!cadet) {
     return res.status(404).json({ error: 'Cadet not found' });
   }
 
-  const duplicate = users.find((item) => item.regimentalNumber === regimentalNumber && item.role === 'cadet' && item.regimentalNumber !== originalRegimentalNumber);
+  const duplicate = await User.findOne({
+    regimentalNumber: { $eq: regimentalNumber, $ne: originalRegimentalNumber },
+    role: 'cadet',
+  });
   if (duplicate) {
     return res.status(409).json({ error: 'New regimental number already exists' });
   }
 
-  const attendance = getAttendance();
-  const oldCadet = users[cadetIndex];
-  const updatedCadet = {
-    ...oldCadet,
-    regimentalNumber,
-    name,
-    unit,
-    passwordHash: password ? hashPassword(password) : oldCadet.passwordHash
-  };
+  cadet.regimentalNumber = regimentalNumber;
+  cadet.name = name;
+  cadet.unit = unit;
+  if (password) {
+    cadet.passwordHash = hashPassword(password);
+  }
 
-  users[cadetIndex] = updatedCadet;
-
-  const updatedAttendance = attendance.map((record) => {
-    if (record.regimentalNumber === originalRegimentalNumber) {
-      return {
-        ...record,
-        regimentalNumber,
-        cadetName: name
-      };
-    }
-    return record;
-  });
-
-  saveUsers(users);
-  saveAttendance(updatedAttendance);
+  await cadet.save();
+  await Attendance.updateMany(
+    { regimentalNumber: originalRegimentalNumber },
+    { $set: { regimentalNumber, cadetName: name } }
+  );
 
   res.json({ cadet: { regimentalNumber, name, unit } });
 });

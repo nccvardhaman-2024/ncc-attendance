@@ -1,121 +1,144 @@
 const express = require('express');
 const { authenticate, authorizeAdmin } = require('../middleware/auth');
-const { getAttendance, getUsers, saveAttendance } = require('../services/dataStore');
+const Attendance = require('../models/Attendance');
+const User = require('../models/User');
+
 const router = express.Router();
 
 router.use(authenticate);
 
-router.get('/mine', (req, res) => {
-  const attendance = getAttendance();
-  const mine = attendance.filter((record) => record.regimentalNumber === req.user.regimentalNumber);
-  res.json({ attendance: mine });
+async function nextAttendanceId() {
+  const latest = await Attendance.findOne({}).sort({ id: -1 }).select('id').lean();
+  return latest?.id ? latest.id + 1 : 1;
+}
+
+function normalizeAttendance(record) {
+  return {
+    id: record.id,
+    regimentalNumber: record.regimentalNumber,
+    cadetName: record.cadetName,
+    date: record.date,
+    status: record.status,
+    note: record.note || '',
+    recordedBy: record.recordedBy,
+    recordedAt: record.recordedAt instanceof Date ? record.recordedAt.toISOString() : record.recordedAt
+  };
+}
+
+router.get('/mine', async (req, res) => {
+  const attendance = await Attendance.find({ regimentalNumber: req.user.regimentalNumber })
+    .sort({ date: -1 })
+    .lean();
+  res.json({ attendance: attendance.map(normalizeAttendance) });
 });
 
-router.get('/all', authorizeAdmin, (req, res) => {
+router.get('/all', authorizeAdmin, async (req, res) => {
   const { date } = req.query;
-  let attendance = getAttendance();
+  const query = date ? { date } : {};
+  const attendance = await Attendance.find(query).sort({ date: -1, regimentalNumber: 1 }).lean();
 
-  if (date) {
-    attendance = attendance.filter((record) => record.date === date);
-  }
-
-  res.json({ attendance });
+  res.json({ attendance: attendance.map(normalizeAttendance) });
 });
 
-router.get('/dates', authorizeAdmin, (req, res) => {
-  const attendance = getAttendance();
-  const dates = Array.from(new Set(attendance.map((record) => record.date))).sort((a, b) => b.localeCompare(a));
+router.get('/dates', authorizeAdmin, async (req, res) => {
+  const dates = await Attendance.distinct('date');
+  dates.sort((a, b) => b.localeCompare(a));
   res.json({ dates });
 });
 
-router.post('/', authorizeAdmin, (req, res) => {
-  const { regimentalNumber, date, status, note } = req.body;
+router.post('/', authorizeAdmin, async (req, res) => {
+  const regimentalNumber = String(req.body.regimentalNumber || '').trim();
+  const date = String(req.body.date || '').trim();
+  const status = String(req.body.status || '').trim();
+  const note = String(req.body.note || '');
+
   if (!regimentalNumber || !date || !status) {
     return res.status(400).json({ error: 'Regimental number, date, and status are required' });
   }
 
-  const users = getUsers();
-  const cadet = users.find((item) => item.regimentalNumber === regimentalNumber && item.role === 'cadet');
+  const cadet = await User.findOne({ regimentalNumber, role: 'cadet' }).lean();
   if (!cadet) {
     return res.status(404).json({ error: 'Cadet not found' });
   }
 
-  const attendance = getAttendance();
-  const existingIndex = attendance.findIndex((record) => record.regimentalNumber === regimentalNumber && record.date === date);
-  const newRecord = {
-    id: existingIndex >= 0 ? attendance[existingIndex].id : attendance.length + 1,
-    regimentalNumber,
-    cadetName: cadet.name,
-    date,
-    status,
-    note: note || '',
-    recordedBy: req.user.regimentalNumber,
-    recordedAt: new Date().toISOString()
-  };
+  const existing = await Attendance.findOne({ regimentalNumber, date });
+  const attendance = await Attendance.findOneAndUpdate(
+    { regimentalNumber, date },
+    {
+      $set: {
+        id: existing?.id || await nextAttendanceId(),
+        regimentalNumber,
+        cadetName: cadet.name,
+        date,
+        status,
+        note,
+        recordedBy: req.user.regimentalNumber,
+        recordedAt: new Date()
+      }
+    },
+    { new: true, upsert: true, runValidators: true }
+  );
 
-  if (existingIndex >= 0) {
-    attendance[existingIndex] = newRecord;
-  } else {
-    attendance.push(newRecord);
-  }
-
-  saveAttendance(attendance);
-  res.status(201).json({ attendance: newRecord });
+  res.status(201).json({ attendance: normalizeAttendance(attendance) });
 });
 
-router.post('/batch', authorizeAdmin, (req, res) => {
+router.post('/batch', authorizeAdmin, async (req, res) => {
   const items = req.body;
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Array of attendance entries required' });
   }
 
-  const users = getUsers();
-  const attendance = getAttendance();
+  const regimentalNumbers = Array.from(new Set(
+    items.map((item) => String(item.regimentalNumber || '').trim()).filter(Boolean)
+  ));
+  const cadets = await User.find({ regimentalNumber: { $in: regimentalNumbers }, role: 'cadet' }).lean();
+  const cadetByRegimental = new Map(cadets.map((cadet) => [cadet.regimentalNumber, cadet]));
   const updated = [];
 
-  items.forEach((item) => {
-    const { regimentalNumber, date, status, note } = item;
+  for (const item of items) {
+    const regimentalNumber = String(item.regimentalNumber || '').trim();
+    const date = String(item.date || '').trim();
+    const status = String(item.status || '').trim();
+    const note = String(item.note || '');
+
     if (!regimentalNumber || !date || !status) {
-      return;
+      continue;
     }
 
-    const cadet = users.find((user) => user.regimentalNumber === regimentalNumber && user.role === 'cadet');
+    const cadet = cadetByRegimental.get(regimentalNumber);
     if (!cadet) {
-      return;
+      continue;
     }
 
-    const existingIndex = attendance.findIndex((record) => record.regimentalNumber === regimentalNumber && record.date === date);
-    const record = {
-      id: existingIndex >= 0 ? attendance[existingIndex].id : attendance.length + 1,
-      regimentalNumber,
-      cadetName: cadet.name,
-      date,
-      status,
-      note: note || '',
-      recordedBy: req.user.regimentalNumber,
-      recordedAt: new Date().toISOString()
-    };
+    const existing = await Attendance.findOne({ regimentalNumber, date });
+    const record = await Attendance.findOneAndUpdate(
+      { regimentalNumber, date },
+      {
+        $set: {
+          id: existing?.id || await nextAttendanceId(),
+          regimentalNumber,
+          cadetName: cadet.name,
+          date,
+          status,
+          note,
+          recordedBy: req.user.regimentalNumber,
+          recordedAt: new Date()
+        }
+      },
+      { new: true, upsert: true, runValidators: true }
+    );
 
-    if (existingIndex >= 0) {
-      attendance[existingIndex] = record;
-    } else {
-      attendance.push(record);
-    }
+    updated.push(normalizeAttendance(record));
+  }
 
-    updated.push(record);
-  });
-
-  saveAttendance(attendance);
   res.status(201).json({ updated, count: updated.length });
 });
 
-router.get('/analytics', authorizeAdmin, (req, res) => {
-  const attendance = getAttendance();
-  const users = getUsers();
-  const cadets = users.filter((user) => user.role === 'cadet');
+router.get('/analytics', authorizeAdmin, async (req, res) => {
+  const attendance = (await Attendance.find({}).lean()).map(normalizeAttendance);
+  const cadets = await User.find({ role: 'cadet' }).lean();
   const today = new Date().toISOString().slice(0, 10);
 
-  // per-cadet summary (with percentage)
   const summary = cadets.map((cadet) => {
     const records = attendance.filter((record) => record.regimentalNumber === cadet.regimentalNumber);
     const present = records.filter((record) => record.status === 'Present').length;
@@ -131,7 +154,6 @@ router.get('/analytics', authorizeAdmin, (req, res) => {
     };
   });
 
-  // daily totals (today)
   const dailyRecords = attendance.filter((record) => record.date === today);
   const dailyTotals = {
     present: dailyRecords.filter((record) => record.status === 'Present').length,
@@ -142,7 +164,6 @@ router.get('/analytics', authorizeAdmin, (req, res) => {
     percentage: dailyRecords.length > 0 ? Math.round((dailyRecords.filter((record) => record.status === 'Present').length / dailyRecords.length) * 100) : 0
   };
 
-  // daily grouping by gender and batch for quick front-end use
   const dailyByGender = { SD: { present: 0, absent: 0, late: 0, total: 0 }, SW: { present: 0, absent: 0, late: 0, total: 0 }, UNKNOWN: { present: 0, absent: 0, late: 0, total: 0 } };
   const dailyByBatch = {};
   dailyRecords.forEach((rec) => {
@@ -178,7 +199,6 @@ router.get('/analytics', authorizeAdmin, (req, res) => {
     g.percentage = g.total > 0 ? Math.round((g.present / g.total) * 100) : 0;
   });
 
-  // overall totals
   const totals = {
     present: attendance.filter((record) => record.status === 'Present').length,
     absent: attendance.filter((record) => record.status === 'Absent').length,
@@ -187,15 +207,14 @@ router.get('/analytics', authorizeAdmin, (req, res) => {
     percentage: attendance.length > 0 ? Math.round((attendance.filter((record) => record.status === 'Present').length / attendance.length) * 100) : 0
   };
 
-  // group by gender code SD/SW and by batch year extracted from regimental number
   const byGender = { SD: { present: 0, absent: 0, late: 0, total: 0 }, SW: { present: 0, absent: 0, late: 0, total: 0 }, UNKNOWN: { present: 0, absent: 0, late: 0, total: 0 } };
-  const byBatch = {}; // { '2024': { present, absent, late, total }, ... }
+  const byBatch = {};
 
   attendance.forEach((rec) => {
     const rn = rec.regimentalNumber || '';
     const genderMatch = rn.match(/(SD|SW)/i);
     const gender = genderMatch ? genderMatch[0].toUpperCase() : 'UNKNOWN';
-    const batchMatch = rn.match(/(20\d{2})/); // year like 2024
+    const batchMatch = rn.match(/(20\d{2})/);
     const batch = batchMatch ? batchMatch[0] : 'unknown';
 
     if (!byBatch[batch]) byBatch[batch] = { present: 0, absent: 0, late: 0, total: 0 };
@@ -216,7 +235,6 @@ router.get('/analytics', authorizeAdmin, (req, res) => {
     }
   });
 
-  // attach percentage values to groups
   Object.keys(byBatch).forEach((b) => {
     const g = byBatch[b];
     g.percentage = g.total > 0 ? Math.round((g.present / g.total) * 100) : 0;

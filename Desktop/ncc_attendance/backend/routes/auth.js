@@ -1,20 +1,29 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { getUsers } = require('../services/dataStore');
+const bcrypt = require('bcryptjs');
 const { JWT_SECRET } = require('../middleware/auth');
+const User = require('../models/User');
 
 const ADMIN_REGIMENTAL = process.env.ADMIN_REGIMENTAL;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_NAME = process.env.ADMIN_NAME || 'NCC Admin';
+const ADMIN_UNIT = process.env.ADMIN_UNIT || 'Head Office';
 
 const router = express.Router();
 
-function hashPassword(password) {
+if (!ADMIN_REGIMENTAL || !ADMIN_PASSWORD) {
+  throw new Error('ADMIN_REGIMENTAL and ADMIN_PASSWORD environment variables are required');
+}
+
+function legacySha256(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-router.post('/login', (req, res) => {
-  const { regimentalNumber, password } = req.body;
+router.post('/login', async (req, res) => {
+  const regimentalNumber = String(req.body.regimentalNumber || '').trim();
+  const password = String(req.body.password || '');
+
   if (!regimentalNumber || !password) {
     return res.status(400).json({ error: 'Regimental number and password are required' });
   }
@@ -23,21 +32,34 @@ router.post('/login', (req, res) => {
     const token = jwt.sign(
       {
         regimentalNumber: ADMIN_REGIMENTAL,
-        name: 'NCC Admin',
+        name: ADMIN_NAME,
         role: 'admin',
-        unit: 'Head Office'
+        unit: ADMIN_UNIT
       },
       JWT_SECRET,
       { expiresIn: '8h' }
     );
 
-    return res.json({ token, user: { regimentalNumber: ADMIN_REGIMENTAL, name: 'NCC Admin', role: 'admin', unit: 'Head Office' } });
+    return res.json({ token, user: { regimentalNumber: ADMIN_REGIMENTAL, name: ADMIN_NAME, role: 'admin', unit: ADMIN_UNIT } });
   }
 
-  const users = getUsers();
-  const user = users.find((item) => item.regimentalNumber === regimentalNumber && item.role === 'cadet');
-  if (!user || user.passwordHash !== hashPassword(password)) {
+  const user = await User.findOne({ regimentalNumber, role: 'cadet' });
+  if (!user || !user.passwordHash) {
     return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  const isBcryptHash = user.passwordHash.startsWith('$2a$') || user.passwordHash.startsWith('$2b$') || user.passwordHash.startsWith('$2y$');
+  const passwordMatches = isBcryptHash
+    ? bcrypt.compareSync(password, user.passwordHash)
+    : user.passwordHash === legacySha256(password);
+
+  if (!passwordMatches) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  if (!isBcryptHash) {
+    user.passwordHash = bcrypt.hashSync(password, 12);
+    await user.save();
   }
 
   const token = jwt.sign(

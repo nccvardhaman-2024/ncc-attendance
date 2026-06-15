@@ -6,15 +6,17 @@
 
 :root {
   color-scheme: light;
-  --ncc-navy: #111b5f;
-  --ncc-deep: #070d35;
-  --ncc-blue: #1c55c9;
-  --ncc-electric: #2878ff;
-  --ncc-sky: #5eb8f2;
-  --ncc-red: #f02232;
-  --ncc-red-dark: #c81020;
-  --ncc-ice: #edf6ff;
-  --ncc-ink: #111936;
+  --ncc-navy: #14213d;
+  --ncc-deep: #09111f;
+  --ncc-blue: #2563eb;
+  --ncc-electric: #0f766e;
+  --ncc-sky: #38bdf8;
+  --ncc-red: #dc2626;
+  --ncc-red-dark: #991b1b;
+  --ncc-amber: #d97706;
+  --ncc-ice: #eef6f7;
+  --ncc-ink: #152033;
+  --ncc-muted: #64748b;
 }
 
 * {
@@ -30,11 +32,9 @@ body {
   min-width: 320px;
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   background:
-    linear-gradient(rgba(28, 85, 201, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(28, 85, 201, 0.035) 1px, transparent 1px),
-    radial-gradient(circle at 10% 5%, rgba(40, 120, 255, 0.17), transparent 25rem),
-    radial-gradient(circle at 93% 80%, rgba(240, 34, 50, 0.1), transparent 26rem),
-    #f4f7fc;
+    linear-gradient(rgba(20, 33, 61, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 33, 61, 0.035) 1px, transparent 1px),
+    linear-gradient(135deg, #f7fafc 0%, #edf6f7 48%, #f8fafc 100%);
   background-size: 36px 36px, 36px 36px, auto, auto, auto;
   color: var(--ncc-ink);
 }
@@ -59,51 +59,51 @@ button {
 }
 
 ::selection {
-  background: rgba(240, 34, 50, 0.2);
+  background: rgba(15, 118, 110, 0.18);
   color: var(--ncc-deep);
 }
 
 @layer components {
   .ncc-panel {
-    @apply relative overflow-hidden rounded-[1.6rem] border border-white/80 bg-white/90 shadow-[0_24px_70px_rgba(17,27,95,0.12)] backdrop-blur-xl;
+    @apply relative overflow-hidden rounded-[1.15rem] border border-slate-200/80 bg-white/95 shadow-[0_18px_48px_rgba(15,23,42,0.10)] backdrop-blur-xl;
   }
 
   .ncc-panel::before {
     content: '';
     @apply absolute inset-x-0 top-0 h-1;
-    background: linear-gradient(90deg, var(--ncc-red), var(--ncc-electric), var(--ncc-sky));
+    background: linear-gradient(90deg, var(--ncc-electric), var(--ncc-sky), var(--ncc-amber));
   }
 
   .ncc-kicker {
-    @apply inline-flex items-center gap-2 text-[0.7rem] font-extrabold uppercase tracking-[0.3em] text-[#1c55c9];
+    @apply inline-flex items-center gap-2 text-[0.7rem] font-extrabold uppercase tracking-[0.3em] text-[#0f766e];
   }
 
   .ncc-kicker::before {
     content: '';
-    @apply h-2 w-2 rounded-sm bg-[#f02232] shadow-[0_0_0_4px_rgba(240,34,50,.10)];
+    @apply h-2 w-2 rounded-sm bg-[#d97706] shadow-[0_0_0_4px_rgba(217,119,6,.12)];
   }
 
   .ncc-input {
-    @apply mt-2 w-full rounded-xl border border-[#c7d7ec] bg-[#f8fbff] px-4 py-3 text-[#111b5f] outline-none transition placeholder:text-slate-400 hover:border-[#8fb4e7] focus:border-[#2878ff] focus:bg-white focus:ring-4 focus:ring-[#2878ff]/15;
+    @apply mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-[#14213d] outline-none transition placeholder:text-slate-400 hover:border-[#7dd3fc] focus:border-[#0f766e] focus:bg-white focus:ring-4 focus:ring-[#0f766e]/15;
   }
 
   .ncc-primary {
-    @apply rounded-xl bg-[#f02232] px-6 py-3 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(240,34,50,0.28)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#c81020] hover:shadow-[0_17px_34px_rgba(240,34,50,0.35)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply rounded-xl bg-[#0f766e] px-6 py-3 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#115e59] hover:shadow-[0_17px_34px_rgba(15,118,110,0.30)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .ncc-secondary {
-    @apply rounded-xl border border-[#a9c8e2] bg-white px-6 py-3 text-sm font-bold text-[#111b5f] transition hover:border-[#2878ff] hover:bg-[#edf6ff];
+    @apply rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-[#14213d] transition hover:border-[#0f766e] hover:bg-[#eef6f7];
   }
 
   .ncc-card {
-    @apply rounded-2xl border border-[#d9e6f3] bg-gradient-to-br from-white to-[#f1f7ff] p-6 shadow-[0_12px_30px_rgba(17,27,95,.07)];
+    @apply rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-[#f6fbfb] p-6 shadow-[0_12px_30px_rgba(15,23,42,.07)];
   }
 }
 
 .ncc-app-header {
-  background: linear-gradient(105deg, rgba(7, 13, 53, 0.97), rgba(17, 27, 95, 0.96) 65%, rgba(28, 85, 201, 0.94));
-  border-bottom: 1px solid rgba(94, 184, 242, 0.25);
-  box-shadow: 0 14px 35px rgba(7, 13, 53, 0.18);
+  background: linear-gradient(105deg, rgba(9, 17, 31, 0.98), rgba(20, 33, 61, 0.97) 68%, rgba(15, 118, 110, 0.95));
+  border-bottom: 1px solid rgba(125, 211, 252, 0.22);
+  box-shadow: 0 14px 35px rgba(9, 17, 31, 0.18);
 }
 
 .ncc-app-header::after {
@@ -111,7 +111,7 @@ button {
   position: absolute;
   inset: auto 0 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--ncc-red), var(--ncc-electric), transparent 75%);
+  background: linear-gradient(90deg, var(--ncc-electric), var(--ncc-sky), transparent 75%);
 }
 
 .ncc-page {
@@ -128,16 +128,16 @@ button {
   .border-yellow-500,
   .border-yellow-400,
   .border-yellow-300 {
-    border-color: var(--ncc-red) !important;
+    border-color: var(--ncc-electric) !important;
   }
 
   .border-emerald-500 {
-    border-color: var(--ncc-blue) !important;
+    border-color: var(--ncc-electric) !important;
   }
 
   .bg-yellow-500,
   .bg-yellow-400 {
-    background: linear-gradient(135deg, var(--ncc-red), #ff4552) !important;
+    background: linear-gradient(135deg, var(--ncc-electric), #14b8a6) !important;
     color: white !important;
   }
 
@@ -146,19 +146,19 @@ button {
   .bg-amber-50,
   .bg-emerald-50,
   .bg-emerald-100 {
-    background-color: #edf6ff !important;
+    background-color: #eef6f7 !important;
   }
 
   .bg-blue-50 {
-    background: linear-gradient(145deg, #f7fbff, #eaf4ff) !important;
+    background: linear-gradient(145deg, #f8fafc, #eef6f7) !important;
   }
 
   .bg-blue-900 {
-    background: linear-gradient(135deg, var(--ncc-navy), var(--ncc-blue)) !important;
+    background: linear-gradient(135deg, var(--ncc-deep), var(--ncc-navy)) !important;
   }
 
   .bg-blue-800 {
-    background-color: var(--ncc-blue) !important;
+    background-color: var(--ncc-navy) !important;
   }
 
   .text-yellow-300,
@@ -167,11 +167,11 @@ button {
   .text-yellow-800,
   .text-amber-700,
   .text-emerald-700 {
-    color: var(--ncc-blue) !important;
+    color: var(--ncc-electric) !important;
   }
 
   .hover\:bg-yellow-400:hover {
-    background: linear-gradient(135deg, var(--ncc-red-dark), var(--ncc-red)) !important;
+    background: linear-gradient(135deg, #115e59, var(--ncc-electric)) !important;
   }
 
   .focus\:border-yellow-300:focus,
@@ -180,7 +180,7 @@ button {
   }
 
   .focus\:ring-yellow-500\/50:focus {
-    --tw-ring-color: rgba(40, 120, 255, 0.18) !important;
+    --tw-ring-color: rgba(15, 118, 110, 0.18) !important;
   }
 
   .text-blue-900 {
@@ -190,18 +190,18 @@ button {
   .text-blue-600,
   .text-blue-700,
   .text-emerald-600 {
-    color: var(--ncc-blue) !important;
+    color: var(--ncc-electric) !important;
   }
 
   .shadow-lg.border-t-4,
   .shadow-lg.border-t-4.border-yellow-500 {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(210, 224, 241, 0.9) !important;
+    border: 1px solid rgba(203, 213, 225, 0.9) !important;
     border-top-width: 1px !important;
-    border-radius: 1.6rem !important;
-    background: rgba(255, 255, 255, 0.93) !important;
-    box-shadow: 0 24px 65px rgba(17, 27, 95, 0.11) !important;
+    border-radius: 1.15rem !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.10) !important;
     backdrop-filter: blur(16px);
   }
 
@@ -210,7 +210,7 @@ button {
     position: absolute;
     inset: 0 0 auto;
     height: 4px;
-    background: linear-gradient(90deg, var(--ncc-red), var(--ncc-electric), var(--ncc-sky));
+    background: linear-gradient(90deg, var(--ncc-electric), var(--ncc-sky), var(--ncc-amber));
   }
 
   .rounded-3xl {
