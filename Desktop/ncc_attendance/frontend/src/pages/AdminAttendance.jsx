@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchAttendanceAll, fetchAttendanceByDate, fetchAttendanceDates, fetchCadets, submitAttendanceBatch } from '../services/api';
 import AttendanceTable from '../components/AttendanceTable';
+import RankInsignia from '../components/RankInsignia';
 
 const defaultDate = new Date().toISOString().slice(0, 10);
 
@@ -186,30 +187,30 @@ export default function AttendancePage({ token }) {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      <section className="rounded-[2rem] bg-white p-5 shadow-lg border-t-4 border-yellow-500 sm:p-8">
+    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] animate-fade-up">
+      <section className="ncc-panel sm:p-8">
         <div className="mb-6">
-          <p className="text-sm uppercase tracking-[0.3em] text-blue-600 font-bold">Attendance sheet</p>
-          <h1 className="mt-3 text-3xl font-bold text-blue-900">Mark cadets present or absent</h1>
-          <p className="mt-2 text-sm text-slate-700">Use the list below to set attendance for all cadets on a selected date.</p>
+          <p className="ncc-kicker">Attendance sheet</p>
+          <h1 className="mt-3 text-3xl font-extrabold text-slate-900">Mark cadets present or absent</h1>
+          <p className="mt-2 text-sm text-slate-600 font-medium">Use the list below to set attendance for all cadets on a selected date.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_auto]">
           <div>
-            <label className="block text-sm font-semibold text-blue-900">Date</label>
+            <label className="block text-sm font-semibold text-slate-700">Date</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="mt-2 w-full rounded-3xl border-2 border-yellow-500 bg-blue-50 px-4 py-3 outline-none focus:border-yellow-300 focus:ring-2 focus:ring-yellow-500/50 text-blue-900 font-medium"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-[#4f46e5] focus:bg-white focus:ring-4 focus:ring-[#4f46e5]/10 font-medium"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-blue-900">Batch</label>
+            <label className="block text-sm font-semibold text-slate-700">Batch</label>
             <select
               value={selectedBatch}
               onChange={(e) => setSelectedBatch(e.target.value)}
-              className="mt-2 w-full rounded-3xl border-2 border-yellow-500 bg-blue-50 px-4 py-3 text-blue-900 font-medium outline-none focus:border-yellow-300 focus:ring-2 focus:ring-yellow-500/50"
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 font-medium outline-none transition-all duration-200 hover:border-slate-300 focus:border-[#4f46e5] focus:bg-white focus:ring-4 focus:ring-[#4f46e5]/10"
             >
               <option value="all">All batches</option>
               {batchOptions.map((batch) => (
@@ -218,31 +219,39 @@ export default function AttendancePage({ token }) {
             </select>
           </div>
           <div className="flex items-end sm:col-span-2 xl:col-span-1">
-            <button onClick={handleSubmit} className="w-full rounded-3xl bg-yellow-500 px-6 py-3 text-sm font-bold text-blue-900 transition hover:bg-yellow-400 shadow-md xl:min-w-48">
-              Save attendance for date
+            <button onClick={handleSubmit} className="ncc-primary w-full xl:min-w-48 !py-3.5 !rounded-xl">
+              Save attendance
             </button>
           </div>
         </div>
 
-        <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-blue-50">
-          <div className="grid gap-px bg-[linear-gradient(110deg,#070d35,#111b5f_70%,#1c55c9)] px-4 py-3 text-sm font-semibold text-white sm:grid-cols-[3fr_1fr]">
+        <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50/60">
+          <div className="grid gap-px bg-slate-100 px-5 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 sm:grid-cols-[3fr_1fr] border-b border-slate-200">
             <span>Cadet ({filteredCadets.length})</span>
-            <span className="text-right">Present / Absent</span>
+            <span className="text-right hidden sm:inline">Present / Absent</span>
           </div>
-          <div className="divide-y divide-slate-200 bg-white">
+          <div className="divide-y divide-slate-200 bg-transparent">
             {cadets.length === 0 ? (
-              <div className="p-6 text-sm text-slate-600">Add cadets first to record attendance.</div>
+              <div className="p-6 text-sm text-slate-500 font-medium">Add cadets first to record attendance.</div>
             ) : filteredCadets.length === 0 ? (
-              <div className="p-6 text-sm text-slate-600">No cadets found for batch {selectedBatch}.</div>
+              <div className="p-6 text-sm text-slate-500 font-medium">No cadets found for batch {selectedBatch}.</div>
             ) : (
               filteredCadets.map((cadet) => (
-                <div key={cadet.regimentalNumber} className="flex flex-col gap-4 border-b border-slate-200 px-4 py-4 sm:px-6 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-slate-900">{cadet.name}</p>
-                    <p className="mt-1 break-words text-sm text-slate-500">{cadet.regimentalNumber} • {cadet.unit}</p>
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Today: {cadet.todayStatus}</span>
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Attendance {cadet.totals.percentage}%</span>
+                <div key={cadet.regimentalNumber} className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between transition hover:bg-slate-100/50">
+                  <div className="flex gap-3 items-start">
+                    <RankInsignia rank={cadet.rank} className="w-8 h-11 shrink-0 bg-slate-50 rounded" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-800 flex items-center gap-1.5 flex-wrap">
+                        {cadet.name}
+                        <span className="text-[9px] font-extrabold uppercase tracking-wider text-[var(--ncc-gold)] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
+                          {cadet.rank === 'Cadet' ? 'CDT' : cadet.rank === 'Lance Corporal' ? 'L/CPL' : cadet.rank === 'Corporal' ? 'CPL' : cadet.rank === 'Sergeant' ? 'SGT' : cadet.rank === 'Cadet Under Officer' ? 'CUO' : 'CSUO'}
+                        </span>
+                      </p>
+                      <p className="mt-1 break-words text-xs text-slate-500">{cadet.regimentalNumber} • {cadet.unit}</p>
+                      <div className="mt-2.5 flex flex-wrap gap-2 text-[11px]">
+                        <span className="rounded-full bg-slate-100 border border-slate-200 px-2 py-0.5 text-slate-600">Today: {cadet.todayStatus}</span>
+                        <span className="rounded-full bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-emerald-700 font-semibold">Attendance {cadet.totals.percentage}%</span>
+                      </div>
                     </div>
                   </div>
                   <button
@@ -253,7 +262,11 @@ export default function AttendancePage({ token }) {
                         [cadet.regimentalNumber]: prev[cadet.regimentalNumber] === 'Present' ? 'Absent' : 'Present'
                       }))
                     }
-                    className={`w-full rounded-full px-5 py-2 text-sm font-semibold transition sm:w-auto ${statuses[cadet.regimentalNumber] === 'Present' ? 'bg-blue-100 text-blue-800 border-2 border-yellow-500' : 'bg-red-100 text-red-800 border-2 border-red-400'}`}
+                    className={`w-full rounded-xl px-5 py-2 text-sm font-bold uppercase tracking-wider transition-all duration-200 border sm:w-auto ${
+                      statuses[cadet.regimentalNumber] === 'Present'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                        : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                    }`}
                   >
                     {statuses[cadet.regimentalNumber] === 'Present' ? 'Present' : 'Absent'}
                   </button>
@@ -263,66 +276,72 @@ export default function AttendancePage({ token }) {
           </div>
         </div>
 
-        {message && <p className="mt-4 text-sm text-blue-700 font-semibold">✓ {message}</p>}
-        {error && <p className="mt-4 text-sm text-rose-600">{error}</p>}
+        {message && <p className="mt-4 text-sm text-emerald-600 font-semibold">✓ {message}</p>}
+        {error && <p className="mt-4 text-sm text-rose-600 font-semibold">{error}</p>}
       </section>
 
       <aside className="space-y-6">
-        <div className="rounded-[2rem] bg-white p-5 shadow-lg border-t-4 border-yellow-500 sm:p-8">
+        <div className="ncc-panel sm:p-8">
           <div className="mb-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-blue-600 font-bold">Attendance sheets</p>
-            <h2 className="mt-3 text-2xl font-bold text-blue-900">Saved dates</h2>
-            <p className="mt-2 text-sm text-slate-700">Click a date to view or export its attendance sheet.</p>
+            <p className="ncc-kicker">Attendance sheets</p>
+            <h2 className="mt-3 text-2xl font-bold text-slate-900">Saved dates</h2>
+            <p className="mt-2 text-sm text-slate-600 font-medium">Click a date to view or export its attendance sheet.</p>
           </div>
           {dates.length === 0 ? (
-            <p className="rounded-3xl border border-slate-200 bg-blue-50 p-4 text-sm text-slate-700">No saved sheets yet.</p>
+            <p className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm text-slate-500 font-medium">No saved sheets yet.</p>
           ) : (
             <div className="space-y-3">
               {dates.map((sheetDate) => (
                 <button
                   key={sheetDate}
                   onClick={() => loadSheet(sheetDate)}
-                  className={`w-full rounded-xl border px-4 py-3 text-left text-sm transition ${selectedDate === sheetDate ? 'border-[#2878ff] bg-[#edf6ff] text-[#111b5f] font-bold shadow-[0_8px_20px_rgba(40,120,255,.12)]' : 'border-slate-200 bg-white text-slate-800 hover:border-[#9ac2ed] hover:bg-blue-50'}`}
+                  className={`w-full rounded-xl border px-4 py-3 text-left text-sm font-bold transition-all duration-200 ${
+                    selectedDate === sheetDate
+                      ? 'border-indigo-600 bg-indigo-50 text-indigo-900 font-bold shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                  }`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span>{sheetDate}</span>
-                    {selectedDate === sheetDate && <span className="rounded-full bg-yellow-500 px-3 py-1 text-xs font-bold text-blue-900">Open</span>}
+                    {selectedDate === sheetDate && (
+                      <span className="rounded-full bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-sm">Open</span>
+                    )}
                   </div>
                 </button>
               ))}
             </div>
           )}
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-6 flex flex-col gap-4 border-t border-slate-200 pt-6">
             <div>
-              <p className="text-sm text-slate-700 font-semibold">Full attendance sheet export</p>
-              <p className="text-xs text-slate-600">Includes all cadets, all dates, and 1/0 attendance values per date.</p>
+              <p className="text-sm text-slate-800 font-semibold">Full attendance sheet export</p>
+              <p className="text-xs text-slate-500 mt-1">Includes all cadets, all dates, and 1/0 attendance values per date.</p>
             </div>
             <button
               type="button"
               onClick={handleExportFull}
               disabled={loadingExport}
-              className="w-full rounded-3xl bg-blue-900 px-5 py-3 text-sm font-bold text-yellow-300 transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60 shadow-md border border-yellow-500 sm:w-auto"
+              className="ncc-secondary w-full sm:w-auto"
             >
-              {loadingExport ? 'Preparing export...' : 'Export full attendance sheet'}
+              {loadingExport ? 'Preparing export...' : 'Export full sheet (CSV)'}
             </button>
           </div>
         </div>
 
         {activeRecords.length > 0 && (
-          <div className="rounded-[2rem] bg-white p-5 shadow-lg border-t-4 border-yellow-500 sm:p-8">
+          <div className="ncc-panel sm:p-8">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-blue-600 font-bold">Sheet preview</p>
-                <h2 className="mt-3 text-2xl font-bold text-blue-900">{selectedDate}</h2>
+                <p className="ncc-kicker">Sheet preview</p>
+                <h2 className="mt-3 text-2xl font-bold text-slate-900">{selectedDate}</h2>
               </div>
               <button
                 onClick={() => downloadSheet(activeRecords, selectedDate)}
-                className="w-full rounded-3xl bg-blue-900 px-5 py-3 text-sm font-bold text-yellow-300 transition hover:bg-blue-800 shadow-md border border-yellow-500 sm:w-auto"
+                className="ncc-secondary w-full sm:w-auto"
               >
                 Export CSV
               </button>
             </div>
-            <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+            <div className="mt-2">
               <AttendanceTable records={activeRecords} />
             </div>
           </div>

@@ -4,96 +4,103 @@ function authHeaders(token) {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+async function request(path, options = {}) {
+  let response;
+
+  try {
+    response = await fetch(`${API_URL}${path}`, options);
+  } catch (err) {
+    return { error: 'Unable to connect to the server. Please check the backend and database connection.' };
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  const data = contentType.includes('application/json') ? await response.json() : {};
+
+  if (!response.ok) {
+    return { error: data.error || `Request failed with status ${response.status}` };
+  }
+
+  return data;
+}
+
 export async function login(regimentalNumber, password) {
-  const response = await fetch(`${API_URL}/auth/login`, {
+  return request('/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ regimentalNumber, password })
   });
-  return response.json();
 }
 
 export async function fetchMe(token) {
-  const response = await fetch(`${API_URL}/auth/me`, {
+  return request('/auth/me', {
     headers: { ...authHeaders(token) }
   });
-  return response.json();
 }
 
 export async function fetchCadetAttendance(token) {
-  const response = await fetch(`${API_URL}/attendance/mine`, {
+  return request('/attendance/mine', {
     headers: { ...authHeaders(token) }
   });
-  return response.json();
 }
 
 export async function fetchCadets(token) {
-  const response = await fetch(`${API_URL}/cadets`, {
+  return request('/cadets', {
     headers: { ...authHeaders(token) }
   });
-  return response.json();
 }
 
 export async function createCadet(token, payload) {
-  const response = await fetch(`${API_URL}/cadets`, {
+  return request('/cadets', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
     body: JSON.stringify(payload)
   });
-  return response.json();
 }
 
 export async function fetchAttendanceDates(token) {
-  const response = await fetch(`${API_URL}/attendance/dates`, {
+  return request('/attendance/dates', {
     headers: { ...authHeaders(token) }
   });
-  return response.json();
 }
 
 export async function fetchAttendanceByDate(token, date) {
-  const response = await fetch(`${API_URL}/attendance/all?date=${encodeURIComponent(date)}`, {
+  return request(`/attendance/all?date=${encodeURIComponent(date)}`, {
     headers: { ...authHeaders(token) }
   });
-  return response.json();
 }
 
 export async function fetchAttendanceAll(token) {
-  const response = await fetch(`${API_URL}/attendance/all`, {
+  return request('/attendance/all', {
     headers: { ...authHeaders(token) }
   });
-  return response.json();
 }
 
 export async function updateCadet(token, originalRegimentalNumber, payload) {
-  const response = await fetch(`${API_URL}/cadets/${encodeURIComponent(originalRegimentalNumber)}`, {
+  return request(`/cadets/${encodeURIComponent(originalRegimentalNumber)}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
     body: JSON.stringify(payload)
   });
-  return response.json();
 }
 
 export async function submitAttendanceBatch(token, payload) {
-  const response = await fetch(`${API_URL}/attendance/batch`, {
+  return request('/attendance/batch', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
     body: JSON.stringify(payload)
   });
-  return response.json();
 }
 
 export async function fetchAnalytics(token) {
-  const response = await fetch(`${API_URL}/attendance/analytics`, {
+  return request('/attendance/analytics', {
     headers: { ...authHeaders(token) }
   });
-  return response.json();
 }
 
 export async function submitAttendance(token, payload) {
-  const response = await fetch(`${API_URL}/attendance`, {
+  return request('/attendance', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
     body: JSON.stringify(payload)
   });
-  return response.json();
 }

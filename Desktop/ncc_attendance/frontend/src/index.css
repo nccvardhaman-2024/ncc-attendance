@@ -1,22 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Poppins:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* SaaS Premium Light Color System & CSS Variables */
 :root {
   color-scheme: light;
-  --ncc-navy: #14213d;
-  --ncc-deep: #09111f;
-  --ncc-blue: #2563eb;
-  --ncc-electric: #0f766e;
-  --ncc-sky: #38bdf8;
-  --ncc-red: #dc2626;
-  --ncc-red-dark: #991b1b;
-  --ncc-amber: #d97706;
-  --ncc-ice: #eef6f7;
-  --ncc-ink: #152033;
-  --ncc-muted: #64748b;
+  
+  /* NCC Tri-Service Theme Colors */
+  --ncc-red: #D8232A;      /* Army Red */
+  --ncc-navy: #172554;     /* Navy Deep Blue */
+  --ncc-sky: #0EA5E9;      /* Air Force Light Blue */
+  --ncc-gold: #D97706;     /* Gold Accent (Unity & Discipline) */
+  --ncc-gold-light: #FEF08A; /* Gold background glow */
+
+  --primary: var(--ncc-navy);
+  --primary-hover: #1e3a8a;
+  --secondary: var(--ncc-sky);
+  --accent: var(--ncc-red);
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --card: #FFFFFF;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --success: #10B981;
+  --warning: var(--ncc-gold);
+  --danger: var(--ncc-red);
+  --border: rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -30,21 +41,25 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  background:
-    linear-gradient(rgba(20, 33, 61, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 33, 61, 0.035) 1px, transparent 1px),
-    linear-gradient(135deg, #f7fafc 0%, #edf6f7 48%, #f8fafc 100%);
-  background-size: 36px 36px, 36px 36px, auto, auto, auto;
-  color: var(--ncc-ink);
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 100% 0%, rgba(216, 35, 42, 0.04) 0%, transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(14, 165, 233, 0.04) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(217, 119, 6, 0.02) 0%, transparent 60%),
+    linear-gradient(to bottom, #f8fafc, #f1f5f9);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
 h2,
 h3,
 .font-display {
-  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.025em;
+  line-height: 1.25;
 }
 
 button,
@@ -56,153 +71,236 @@ textarea {
 
 button {
   -webkit-tap-highlight-color: transparent;
+  transition: 
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    opacity 0.2s ease;
 }
 
 ::selection {
-  background: rgba(15, 118, 110, 0.18);
-  color: var(--ncc-deep);
+  background: rgba(216, 35, 42, 0.12);
+  color: var(--text-primary);
 }
 
 @layer components {
+  /* Panel with glassmorphism styling - SaaS Light */
   .ncc-panel {
-    @apply relative overflow-hidden rounded-[1.15rem] border border-slate-200/80 bg-white/95 shadow-[0_18px_48px_rgba(15,23,42,0.10)] backdrop-blur-xl;
+    @apply relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_8px_30px_rgba(15,23,42,0.03)] backdrop-blur-xl transition-all duration-300;
   }
 
   .ncc-panel::before {
     content: '';
-    @apply absolute inset-x-0 top-0 h-1;
-    background: linear-gradient(90deg, var(--ncc-electric), var(--ncc-sky), var(--ncc-amber));
+    @apply absolute inset-x-0 top-0 h-[4px];
+    background: linear-gradient(90deg, var(--ncc-red) 33.3%, var(--ncc-navy) 33.3%, var(--ncc-navy) 66.6%, var(--ncc-sky) 66.6%);
   }
 
+  /* Badge indicator for headers */
   .ncc-kicker {
-    @apply inline-flex items-center gap-2 text-[0.7rem] font-extrabold uppercase tracking-[0.3em] text-[#0f766e];
+    @apply inline-flex items-center gap-2 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-[var(--ncc-navy)];
   }
 
   .ncc-kicker::before {
     content: '';
-    @apply h-2 w-2 rounded-sm bg-[#d97706] shadow-[0_0_0_4px_rgba(217,119,6,.12)];
+    @apply h-1.5 w-1.5 rounded-full bg-[var(--ncc-red)] shadow-[0_0_8px_rgba(216,35,42,0.5)];
   }
 
+  /* Core Inputs - Light Modern */
   .ncc-input {
-    @apply mt-2 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-[#14213d] outline-none transition placeholder:text-slate-400 hover:border-[#7dd3fc] focus:border-[#0f766e] focus:bg-white focus:ring-4 focus:ring-[#0f766e]/15;
+    @apply mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-[var(--ncc-navy)] focus:bg-white focus:ring-4 focus:ring-[#172554]/10;
   }
 
+  /* Core Buttons - Premium Gradients and Hovers */
   .ncc-primary {
-    @apply rounded-xl bg-[#0f766e] px-6 py-3 text-sm font-extrabold text-white shadow-[0_12px_28px_rgba(15,118,110,0.24)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#115e59] hover:shadow-[0_17px_34px_rgba(15,118,110,0.30)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60;
+    background: linear-gradient(135deg, var(--ncc-navy), #1e3a8a);
+    @apply rounded-xl px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all duration-300;
+  }
+
+  .ncc-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(23, 37, 84, 0.25);
+  }
+
+  .ncc-primary:active {
+    transform: translateY(-1px);
   }
 
   .ncc-secondary {
-    @apply rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-[#14213d] transition hover:border-[#0f766e] hover:bg-[#eef6f7];
+    @apply rounded-xl border border-slate-200 bg-slate-50 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 transition-all duration-300 hover:border-[var(--ncc-navy)] hover:bg-slate-100;
+  }
+
+  .ncc-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.03);
   }
 
   .ncc-card {
-    @apply rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-[#f6fbfb] p-6 shadow-[0_12px_30px_rgba(15,23,42,.07)];
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.8));
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    @apply p-6 shadow-sm backdrop-blur-md transition-all duration-300;
+  }
+
+  .ncc-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    border-color: rgba(23, 37, 84, 0.3);
   }
 }
 
+/* App Header - Stripe/Linear Style Glassmorphism Light */
 .ncc-app-header {
-  background: linear-gradient(105deg, rgba(9, 17, 31, 0.98), rgba(20, 33, 61, 0.97) 68%, rgba(15, 118, 110, 0.95));
-  border-bottom: 1px solid rgba(125, 211, 252, 0.22);
-  box-shadow: 0 14px 35px rgba(9, 17, 31, 0.18);
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .ncc-app-header::after {
   content: '';
   position: absolute;
   inset: auto 0 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--ncc-electric), var(--ncc-sky), transparent 75%);
+  height: 3px;
+  background: linear-gradient(90deg, var(--ncc-red) 33.3%, var(--ncc-navy) 33.3%, var(--ncc-navy) 66.6%, var(--ncc-sky) 66.6%);
 }
 
 .ncc-page {
-  animation: pageReveal 0.35s ease-out both;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes pageReveal {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Entrance fadeUp animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Restyle the original dashboard utility combinations as one visual system. */
+.animate-fade-up {
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Floating background orbs */
+@keyframes floatSlow {
+  0% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-16px) scale(1.04); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+@keyframes floatMedium {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(12px) rotate(180deg) scale(0.96); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: floatMedium 10s ease-in-out infinite;
+}
+
+/* Map utility classes to new Design System (Light) */
 @layer utilities {
   .border-yellow-500,
   .border-yellow-400,
   .border-yellow-300 {
-    border-color: var(--ncc-electric) !important;
+    border-color: var(--ncc-gold) !important;
   }
 
   .border-emerald-500 {
-    border-color: var(--ncc-electric) !important;
+    border-color: var(--ncc-navy) !important;
   }
 
   .bg-yellow-500,
   .bg-yellow-400 {
-    background: linear-gradient(135deg, var(--ncc-electric), #14b8a6) !important;
+    background: linear-gradient(135deg, var(--ncc-gold), #b45309) !important;
     color: white !important;
   }
 
   .bg-yellow-50,
   .bg-yellow-100,
-  .bg-amber-50,
+  .bg-amber-50 {
+    background-color: rgba(217, 119, 6, 0.08) !important;
+    color: #d97706 !important;
+  }
+  
   .bg-emerald-50,
   .bg-emerald-100 {
-    background-color: #eef6f7 !important;
+    background-color: rgba(23, 37, 84, 0.06) !important;
+    color: var(--ncc-navy) !important;
   }
 
   .bg-blue-50 {
-    background: linear-gradient(145deg, #f8fafc, #eef6f7) !important;
+    background-color: #f1f5f9 !important;
   }
 
   .bg-blue-900 {
-    background: linear-gradient(135deg, var(--ncc-deep), var(--ncc-navy)) !important;
+    background: #0f172a !important;
   }
 
   .bg-blue-800 {
-    background-color: var(--ncc-navy) !important;
+    background-color: #1e293b !important;
   }
 
   .text-yellow-300,
   .text-yellow-400,
   .text-yellow-600,
   .text-yellow-800,
-  .text-amber-700,
+  .text-amber-700 {
+    color: #d97706 !important;
+  }
+  
   .text-emerald-700 {
-    color: var(--ncc-electric) !important;
+    color: var(--ncc-navy) !important;
   }
 
   .hover\:bg-yellow-400:hover {
-    background: linear-gradient(135deg, #115e59, var(--ncc-electric)) !important;
+    background: linear-gradient(135deg, var(--ncc-gold), #b45309) !important;
   }
 
   .focus\:border-yellow-300:focus,
   .focus\:border-emerald-500:focus {
-    border-color: var(--ncc-electric) !important;
+    border-color: var(--ncc-navy) !important;
   }
 
   .focus\:ring-yellow-500\/50:focus {
-    --tw-ring-color: rgba(15, 118, 110, 0.18) !important;
+    --tw-ring-color: rgba(23, 37, 84, 0.2) !important;
   }
 
   .text-blue-900 {
-    color: var(--ncc-navy) !important;
+    color: var(--text-primary) !important;
   }
 
   .text-blue-600,
   .text-blue-700,
   .text-emerald-600 {
-    color: var(--ncc-electric) !important;
+    color: var(--ncc-navy) !important;
   }
 
   .shadow-lg.border-t-4,
   .shadow-lg.border-t-4.border-yellow-500 {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(203, 213, 225, 0.9) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
     border-top-width: 1px !important;
-    border-radius: 1.15rem !important;
-    background: rgba(255, 255, 255, 0.96) !important;
-    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.10) !important;
-    backdrop-filter: blur(16px);
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03) !important;
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  }
+
+  .shadow-lg.border-t-4:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06) !important;
   }
 
   .shadow-lg.border-t-4::before {
@@ -210,16 +308,16 @@ button {
     position: absolute;
     inset: 0 0 auto;
     height: 4px;
-    background: linear-gradient(90deg, var(--ncc-electric), var(--ncc-sky), var(--ncc-amber));
+    background: linear-gradient(90deg, var(--ncc-red) 33.3%, var(--ncc-navy) 33.3%, var(--ncc-navy) 66.6%, var(--ncc-sky) 66.6%);
   }
 
   .rounded-3xl {
-    border-radius: 1.15rem !important;
+    border-radius: 16px !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ncc-page {
+  .ncc-page, .animate-fade-up {
     animation: none;
   }
 }

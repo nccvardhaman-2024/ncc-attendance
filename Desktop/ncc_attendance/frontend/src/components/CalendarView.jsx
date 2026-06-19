@@ -1,7 +1,7 @@
 const statusClasses = {
-  Present: 'bg-[#2457a7] text-white',
-  Absent: 'bg-[#ed1c24] text-white',
-  Late: 'bg-[#5795c7] text-white'
+  Present: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+  Absent: 'bg-rose-50 text-rose-700 border-rose-200/60',
+  Late: 'bg-amber-50 text-amber-700 border-amber-200/60'
 };
 
 export default function CalendarView({ attendance }) {
@@ -11,15 +11,15 @@ export default function CalendarView({ attendance }) {
     <div className="mt-6 space-y-4">
       <div className="grid gap-3 sm:grid-cols-3">
         {dates.map((record) => (
-          <div key={record.date} className="rounded-2xl border border-[#d9e6f1] bg-white p-4 shadow-[0_8px_22px_rgba(17,27,95,.06)] transition hover:-translate-y-0.5 hover:border-[#9ac2ed]">
-            <p className="text-sm text-slate-500">{record.date}</p>
-            <div className={`mt-3 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${statusClasses[record.status] || 'bg-slate-200 text-slate-800'}`}>
+          <div key={record.date} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[#4f46e5]/30 hover:shadow-md">
+            <p className="text-sm font-medium text-slate-500">{record.date}</p>
+            <div className={`mt-3 inline-flex rounded-full px-3 py-1 text-sm font-semibold border ${statusClasses[record.status] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
               {record.status}
             </div>
           </div>
         ))}
       </div>
-      {attendance.length > 6 && <p className="text-sm text-slate-500">Showing the most recent {dates.length} records.</p>}
+      {attendance.length > 12 && <p className="text-sm font-medium text-slate-500">Showing the most recent {dates.length} records.</p>}
     </div>
   );
 }

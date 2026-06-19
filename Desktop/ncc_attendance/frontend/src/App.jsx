@@ -6,6 +6,7 @@ import CadetDashboard from './pages/CadetDashboard';
 import { fetchMe } from './services/api';
 import Logo from './components/Logo';
 import PageWatermark from './components/PageWatermark';
+import vceLogo from './assets/vce-logo.png';
 
 const adminNavItems = [
   { key: 'home', label: 'Home' },
@@ -21,6 +22,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState('landing');
+  const [showWarmupNotice, setShowWarmupNotice] = useState(false);
   const [dashboardSection, setDashboardSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [error, setError] = useState('');
@@ -32,17 +34,30 @@ function App() {
       return;
     }
 
+    const timer = setTimeout(() => {
+      setShowWarmupNotice(true);
+    }, 2500);
+
     fetchMe(token)
       .then((result) => {
         if (result.user) {
           setUser(result.user);
           setScreen('dashboard');
+          setDashboardSection(result.user.role === 'admin' ? 'home' : 'dashboard');
         } else {
           localStorage.removeItem('ncc-token');
           localStorage.removeItem('ncc-user');
         }
       })
-      .finally(() => setLoading(false));
+      .catch(() => {
+        localStorage.removeItem('ncc-token');
+        localStorage.removeItem('ncc-user');
+      })
+      .finally(() => {
+        clearTimeout(timer);
+        setShowWarmupNotice(false);
+        setLoading(false);
+      });
   }, []);
 
   function handleLogin(userData, token) {
@@ -70,7 +85,18 @@ function App() {
 
   function renderContent() {
     if (loading) {
-      return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+      return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[#f8fafc] px-4 text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[var(--ncc-navy)] border-t-transparent"></div>
+          <p className="mt-4 font-display text-lg font-bold text-slate-800">Loading NCC Vardhaman...</p>
+          {showWarmupNotice && (
+            <div className="mt-4 max-w-sm rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-sm animate-pulse">
+              <p className="font-semibold text-[var(--ncc-navy)]">Waking up backend server...</p>
+              <p className="mt-1 text-xs text-slate-600">We host on a free-tier server which goes to sleep when inactive. This first load may take up to a minute. Thank you for your patience!</p>
+            </div>
+          )}
+        </div>
+      );
     }
 
     if (screen === 'login') {
@@ -96,67 +122,75 @@ function App() {
   const isLoginScreen = screen === 'login' && !user;
 
   return (
-    <div className="relative isolate min-h-screen overflow-x-hidden text-slate-900">
+    <div className="relative isolate min-h-screen overflow-x-hidden text-slate-800 bg-[#f8fafc]">
       <PageWatermark />
       {!isLoginScreen && <header className="ncc-app-header sticky top-0 z-20">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 sm:flex sm:flex-wrap sm:justify-between sm:px-6 sm:py-4 lg:px-8">
+        <div className="relative mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
           <div className="flex items-center gap-3">
             <Logo className="h-11 w-11" />
             <div>
-              <p className="font-display text-sm font-extrabold text-white">NCC Vardhaman</p>
+              <p className="font-display text-sm font-extrabold text-slate-900">NCC Vardhaman</p>
               {user ? (
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8dd2ff]">{user.role === 'admin' ? 'Admin command' : 'Cadet portal'}</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--ncc-navy)]">{user.role === 'admin' ? 'Admin command' : 'Cadet portal'}</p>
               ) : (
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8dd2ff]">Attendance command</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Attendance command</p>
               )}
             </div>
           </div>
 
-          {user ? (
-            <>
-              <button
-                type="button"
-                className="col-start-2 row-start-1 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-white/20 lg:hidden"
-                onClick={() => setMobileMenuOpen((open) => !open)}
-              >
-                Menu
-                <span aria-hidden="true">☰</span>
-              </button>
+          {/* VCE Logo - Centered absolutely on sm+ screens, mixed cleanly without card background/borders */}
+          <div className="order-3 mt-1.5 flex w-full justify-center sm:order-none sm:mt-0 sm:w-auto sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:z-10 pointer-events-none">
+            <div className="flex h-11 items-center justify-center transition-all duration-300 hover:scale-105 pointer-events-auto">
+              <img src={vceLogo} alt="Vardhaman College of Engineering" className="h-8 object-contain" />
+            </div>
+          </div>
 
-              <nav className="hidden flex-1 items-center justify-center gap-2 lg:flex">
-                {(user.role === 'admin' ? adminNavItems : cadetNavItems).map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => handleNavigate(item.key)}
-                    className={`rounded-xl px-4 py-2 text-sm font-bold transition ${dashboardSection === item.key ? 'bg-white text-[#111b5f] shadow-[0_8px_20px_rgba(0,0,0,.18)]' : 'text-blue-100 hover:bg-white/10 hover:text-white'}`}
-                  >
-                    {item.label}
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <nav className="hidden items-center gap-2 lg:flex">
+                  {(user.role === 'admin' ? adminNavItems : cadetNavItems).map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={() => handleNavigate(item.key)}
+                      className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${dashboardSection === item.key ? 'bg-[#0f172a] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </nav>
+
+                <div className="flex items-center gap-3">
+                  <span className="hidden text-sm text-slate-655 text-slate-600 sm:inline">Welcome, {user.name}</span>
+                  <button onClick={handleLogout} className="ncc-primary !px-4 !py-2.5 sm:!px-5">
+                    Logout
                   </button>
-                ))}
-              </nav>
-
-              <div className="col-span-2 flex items-center justify-between gap-3 border-t border-white/15 pt-3 sm:col-auto sm:border-0 sm:pt-0">
-                <span className="hidden sm:inline text-sm text-blue-100">Welcome, {user.name}</span>
-                <button onClick={handleLogout} className="ncc-primary !px-4 !py-2.5 sm:!px-5">
-                  Logout
-                </button>
-              </div>
-            </>
-          ) : (
-            <button onClick={() => setScreen('login')} className="ncc-primary !rounded-xl !px-5 !py-2.5">
-              Sign in
-            </button>
-          )}
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-slate-200 lg:hidden"
+                    onClick={() => setMobileMenuOpen((open) => !open)}
+                  >
+                    Menu
+                    <span aria-hidden="true">☰</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button onClick={() => setScreen('login')} className="ncc-primary !rounded-xl !px-5 !py-2.5">
+                Sign in
+              </button>
+            )}
+          </div>
         </div>
 
         {user && mobileMenuOpen && (
-          <div className="border-t border-slate-200 bg-white px-4 py-4 lg:hidden">
+          <div className="border-t border-slate-200 bg-white/95 px-4 py-4 shadow-lg lg:hidden">
             <nav className="space-y-2">
               {(user.role === 'admin' ? adminNavItems : cadetNavItems).map((item) => (
                 <button
                   key={item.key}
                   onClick={() => handleNavigate(item.key)}
-                  className={`w-full rounded-xl px-4 py-3 text-left text-sm font-bold transition ${dashboardSection === item.key ? 'bg-[#101b66] text-white' : 'bg-[#eef6fc] text-[#101b66] hover:bg-[#dcecf8]'}`}
+                  className={`w-full rounded-xl px-4 py-3 text-left text-sm font-bold transition ${dashboardSection === item.key ? 'bg-[#0f172a] text-white' : 'bg-slate-50 text-slate-700 hover:bg-slate-100'}`}
                 >
                   {item.label}
                 </button>

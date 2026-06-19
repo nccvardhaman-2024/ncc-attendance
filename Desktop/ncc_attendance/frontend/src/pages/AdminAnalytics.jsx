@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchAnalytics } from '../services/api';
 import Logo from '../components/Logo';
+import RankInsignia from '../components/RankInsignia';
 
 export default function AnalyticsPage({ token }) {
   const [analytics, setAnalytics] = useState(null);
@@ -69,57 +70,62 @@ export default function AnalyticsPage({ token }) {
   }, [filteredDailyRecords]);
 
   return (
-    <div className="rounded-[2rem] bg-white p-4 shadow-lg border-t-4 border-yellow-500 sm:p-6">
-      <div className="mb-4 flex items-center justify-between gap-4">
+    <div className="ncc-panel sm:p-8">
+      <div className="mb-6 flex items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-blue-600 font-bold">Analytics</p>
-          <h1 className="mt-2 text-2xl font-bold text-blue-900">Attendance overview</h1>
-          <p className="mt-1 text-sm text-slate-700">Totals, daily summary, and filters by batch and gender.</p>
+          <p className="ncc-kicker">Analytics</p>
+          <h1 className="mt-2 text-3xl font-extrabold text-slate-900">Attendance overview</h1>
+          <p className="mt-1 text-sm text-slate-600 font-medium">Totals, daily summary, and filters by batch and gender.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Logo className="h-10 w-10" />
+          <Logo className="h-12 w-12 shrink-0 drop-shadow-md" />
         </div>
       </div>
 
       {loading ? (
-        <p className="text-sm text-slate-600">Loading analytics...</p>
+        <p className="text-sm text-slate-500 font-medium">Loading analytics...</p>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-            <div className="rounded-3xl border border-slate-200 bg-blue-50 p-4 border-l-4 border-yellow-500">
-              <p className="text-sm text-slate-600 font-semibold">Today's total</p>
-              <p className="mt-2 text-2xl font-bold text-blue-900">{topMetrics.total}</p>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 border-l-4 border-l-[#8b5cf6] shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Total</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">{topMetrics.total}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200 bg-blue-50 p-4 border-l-4 border-yellow-500">
-              <p className="text-sm text-slate-600 font-semibold">Present (total)</p>
-              <p className="mt-2 text-2xl font-bold text-yellow-600">{topMetrics.present}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 border-l-4 border-l-[#06b6d4] shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Present (total)</p>
+              <p className="mt-2 text-2xl font-bold text-cyan-700">{topMetrics.present}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200 bg-blue-50 p-4 border-l-4 border-yellow-500">
-              <p className="text-sm text-slate-600 font-semibold">Present (SD)</p>
-              <p className="mt-2 text-2xl font-bold text-yellow-600">{topMetrics.presentSD}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 border-l-4 border-l-indigo-500 shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Present (SD)</p>
+              <p className="mt-2 text-2xl font-bold text-indigo-700">{topMetrics.presentSD}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200 bg-blue-50 p-4 border-l-4 border-yellow-500">
-              <p className="text-sm text-slate-600 font-semibold">Present (SW)</p>
-              <p className="mt-2 text-2xl font-bold text-yellow-600">{topMetrics.presentSW}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 border-l-4 border-l-purple-500 shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Present (SW)</p>
+              <p className="mt-2 text-2xl font-bold text-purple-700">{topMetrics.presentSW}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200 bg-red-50 p-4 border-l-4 border-red-500">
-              <p className="text-sm text-slate-600 font-semibold">Absent (SD)</p>
-              <p className="mt-2 text-2xl font-bold text-red-700">{topMetrics.absentSD}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 border-l-4 border-l-[#ef4444] shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Absent (SD)</p>
+              <p className="mt-2 text-2xl font-bold text-rose-600">{topMetrics.absentSD}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200 bg-red-50 p-4 border-l-4 border-red-500">
-              <p className="text-sm text-slate-600 font-semibold">Absent (SW)</p>
-              <p className="mt-2 text-2xl font-bold text-red-700">{topMetrics.absentSW}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 border-l-4 border-l-[#ef4444] shadow-sm">
+              <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Absent (SW)</p>
+              <p className="mt-2 text-2xl font-bold text-rose-600">{topMetrics.absentSW}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200 bg-yellow-50 p-4 lg:col-span-6 border-l-4 border-yellow-500">
-              <p className="text-sm text-slate-600 font-semibold">Present % (filtered)</p>
-              <p className="mt-2 text-3xl font-bold text-blue-900">{topMetrics.percentage}%</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 lg:col-span-7 border-l-4 border-l-[#22c55e] flex items-center justify-between gap-4 shadow-sm">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-slate-500 font-bold">Present % (filtered)</p>
+                <p className="mt-2 text-3xl font-extrabold text-[#22c55e]">{topMetrics.percentage}%</p>
+              </div>
+              <div className="h-2 w-32 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                <div className="h-full bg-emerald-500 transition-all duration-500" style={{ width: `${topMetrics.percentage}%` }} />
+              </div>
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="mt-8 grid gap-4 border-t border-slate-200 pt-6 sm:grid-cols-2">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <label className="text-sm text-slate-700 font-semibold">Batch</label>
-              <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} className="w-full rounded-2xl border-2 border-yellow-500 bg-blue-50 px-3 py-2 text-sm text-blue-900 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-500/50 sm:ml-2 sm:w-auto">
+              <label className="text-xs uppercase tracking-wider text-slate-500 font-bold">Filter Batch</label>
+              <select value={selectedBatch} onChange={(e) => setSelectedBatch(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-800 outline-none transition-all duration-200 hover:border-slate-300 focus:border-[#4f46e5] focus:ring-4 focus:ring-[#4f46e5]/10 sm:ml-2 sm:w-auto shadow-sm">
                 <option value="all">All</option>
                 {batchOptions.map((b) => (
                   <option key={b} value={b}>{b}</option>
@@ -128,8 +134,8 @@ export default function AnalyticsPage({ token }) {
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-              <label className="text-sm text-slate-700 font-semibold">Gender</label>
-              <select value={selectedGender} onChange={(e) => setSelectedGender(e.target.value)} className="w-full rounded-2xl border-2 border-yellow-500 bg-blue-50 px-3 py-2 text-sm text-blue-900 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-500/50 sm:ml-2 sm:w-auto">
+              <label className="text-xs uppercase tracking-wider text-slate-500 font-bold">Filter Gender</label>
+              <select value={selectedGender} onChange={(e) => setSelectedGender(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-800 outline-none transition-all duration-200 hover:border-slate-300 focus:border-[#4f46e5] focus:ring-4 focus:ring-[#4f46e5]/10 sm:ml-2 sm:w-auto shadow-sm">
                 <option value="all">All</option>
                 {genderOptions.map((g) => (
                   <option key={g} value={g}>{g}</option>
@@ -138,18 +144,28 @@ export default function AnalyticsPage({ token }) {
             </div>
           </div>
 
-          <div className="mt-6">
-            <h2 className="text-lg font-bold text-blue-900">Cadet summary</h2>
-            <div className="mt-3 grid gap-3">
+          <div className="mt-8 border-t border-slate-200 pt-6">
+            <h2 className="text-xl font-bold text-slate-900">Cadet summary</h2>
+            <div className="mt-5 grid gap-3">
               {filteredSummary.slice(0, 200).map((c) => (
-                <div key={c.regimentalNumber} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-3 transition hover:bg-blue-50 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-blue-900">{c.name}</p>
-                    <p className="break-words text-sm text-slate-500">{c.regimentalNumber} • {c.unit}</p>
+                <div key={c.regimentalNumber} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:bg-slate-50 sm:flex-row sm:items-center sm:justify-between hover:scale-[1.01] shadow-sm">
+                  <div className="flex gap-3 items-start">
+                    <RankInsignia rank={c.rank} className="w-8 h-11 shrink-0 bg-slate-50 rounded" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                        {c.name}
+                        <span className="text-[9px] font-extrabold uppercase tracking-wider text-[var(--ncc-gold)] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
+                          {c.rank === 'Cadet' ? 'CDT' : c.rank === 'Lance Corporal' ? 'L/CPL' : c.rank === 'Corporal' ? 'CPL' : c.rank === 'Sergeant' ? 'SGT' : c.rank === 'Cadet Under Officer' ? 'CUO' : 'CSUO'}
+                        </span>
+                      </p>
+                      <p className="break-words text-xs text-slate-500 mt-1">{c.regimentalNumber} • {c.unit}</p>
+                    </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-sm text-slate-600">{c.totals.percentage}%</span>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${c.totals.percentage >= 80 ? 'bg-blue-100 text-blue-800 border border-yellow-500' : 'bg-red-100 text-red-800 border border-red-400'}`}>{c.totals.present}P • {c.totals.absent}A</span>
+                    <span className="text-sm font-semibold text-slate-700">{c.totals.percentage}% attendance</span>
+                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold border ${c.totals.percentage >= 80 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100'}`}>
+                      {c.totals.present}P • {c.totals.absent}A
+                    </span>
                   </div>
                 </div>
               ))}
