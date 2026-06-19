@@ -4,12 +4,47 @@ const Attendance = require('../models/Attendance');
 const User = require('../models/User');
 
 const router = express.Router();
+const VALID_STATUSES = new Set(['Present', 'Absent', 'Late']);
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 router.use(authenticate);
 
 async function nextAttendanceId() {
   const latest = await Attendance.findOne({}).sort({ id: -1 }).select('id').lean();
   return latest?.id ? latest.id + 1 : 1;
+}
+
+function normalizeRegimentalNumber(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+function normalizeNote(value) {
+  return String(value || '').trim().slice(0, 300);
+}
+
+function isValidDate(value) {
+  if (!DATE_PATTERN.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function parseAttendanceInput(item) {
+  const regimentalNumber = normalizeRegimentalNumber(item.regimentalNumber);
+  const date = String(item.date || '').trim();
+  const status = String(item.status || '').trim();
+  const note = normalizeNote(item.note);
+
+  if (!regimentalNumber || !date || !status) {
+    return { error: 'Regimental number, date, and status are required' };
+  }
+  if (!isValidDate(date)) {
+    return { error: 'Attendance date must use YYYY-MM-DD format' };
+  }
+  if (!VALID_STATUSES.has(status)) {
+    return { error: 'Attendance status must be Present, Absent, or Late' };
+  }
+
+  return { value: { regimentalNumber, date, status, note } };
 }
 
 function normalizeAttendance(record) {
@@ -25,6 +60,45 @@ function normalizeAttendance(record) {
   };
 }
 
+function buildAttendanceBreakdowns(records) {
+  const byGender = { SD: { present: 0, absent: 0, late: 0, total: 0 }, SW: { present: 0, absent: 0, late: 0, total: 0 }, UNKNOWN: { present: 0, absent: 0, late: 0, total: 0 } };
+  const byBatch = {};
+
+  records.forEach((rec) => {
+    const rn = rec.regimentalNumber || '';
+    const genderMatch = rn.match(/(SD|SW)/i);
+    const gender = genderMatch ? genderMatch[0].toUpperCase() : 'UNKNOWN';
+    const batchMatch = rn.match(/(20\d{2})/);
+    const batch = batchMatch ? batchMatch[0] : 'unknown';
+
+    if (!byBatch[batch]) byBatch[batch] = { present: 0, absent: 0, late: 0, total: 0 };
+    if (!byGender[gender]) byGender[gender] = { present: 0, absent: 0, late: 0, total: 0 };
+
+    byBatch[batch].total += 1;
+    byGender[gender].total += 1;
+
+    if (rec.status === 'Present') {
+      byBatch[batch].present += 1;
+      byGender[gender].present += 1;
+    } else if (rec.status === 'Absent') {
+      byBatch[batch].absent += 1;
+      byGender[gender].absent += 1;
+    } else if (rec.status === 'Late') {
+      byBatch[batch].late += 1;
+      byGender[gender].late += 1;
+    }
+  });
+
+  Object.values(byBatch).forEach((group) => {
+    group.percentage = group.total > 0 ? Math.round((group.present / group.total) * 100) : 0;
+  });
+  Object.values(byGender).forEach((group) => {
+    group.percentage = group.total > 0 ? Math.round((group.present / group.total) * 100) : 0;
+  });
+
+  return { byBatch, byGender };
+}
+
 router.get('/mine', async (req, res) => {
   const attendance = await Attendance.find({ regimentalNumber: req.user.regimentalNumber })
     .sort({ date: -1 })
@@ -33,7 +107,11 @@ router.get('/mine', async (req, res) => {
 });
 
 router.get('/all', authorizeAdmin, async (req, res) => {
-  const { date } = req.query;
+  const date = String(req.query.date || '').trim();
+  if (date && !isValidDate(date)) {
+    return res.status(400).json({ error: 'Attendance date must use YYYY-MM-DD format' });
+  }
+
   const query = date ? { date } : {};
   const attendance = await Attendance.find(query).sort({ date: -1, regimentalNumber: 1 }).lean();
 
@@ -47,15 +125,12 @@ router.get('/dates', authorizeAdmin, async (req, res) => {
 });
 
 router.post('/', authorizeAdmin, async (req, res) => {
-  const regimentalNumber = String(req.body.regimentalNumber || '').trim();
-  const date = String(req.body.date || '').trim();
-  const status = String(req.body.status || '').trim();
-  const note = String(req.body.note || '');
-
-  if (!regimentalNumber || !date || !status) {
-    return res.status(400).json({ error: 'Regimental number, date, and status are required' });
+  const parsed = parseAttendanceInput(req.body);
+  if (parsed.error) {
+    return res.status(400).json({ error: parsed.error });
   }
 
+  const { regimentalNumber, date, status, note } = parsed.value;
   const cadet = await User.findOne({ regimentalNumber, role: 'cadet' }).lean();
   if (!cadet) {
     return res.status(404).json({ error: 'Cadet not found' });
@@ -76,10 +151,10 @@ router.post('/', authorizeAdmin, async (req, res) => {
         recordedAt: new Date()
       }
     },
-    { new: true, upsert: true, runValidators: true }
+    { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
   );
 
-  res.status(201).json({ attendance: normalizeAttendance(attendance) });
+  res.status(existing ? 200 : 201).json({ attendance: normalizeAttendance(attendance) });
 });
 
 router.post('/batch', authorizeAdmin, async (req, res) => {
@@ -87,51 +162,65 @@ router.post('/batch', authorizeAdmin, async (req, res) => {
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: 'Array of attendance entries required' });
   }
+  if (items.length > 500) {
+    return res.status(400).json({ error: 'Attendance batch cannot exceed 500 entries' });
+  }
 
-  const regimentalNumbers = Array.from(new Set(
-    items.map((item) => String(item.regimentalNumber || '').trim()).filter(Boolean)
-  ));
+  const parsedItems = [];
+  const seenKeys = new Set();
+
+  for (const [index, item] of items.entries()) {
+    const parsed = parseAttendanceInput(item || {});
+    if (parsed.error) {
+      return res.status(400).json({ error: `Entry ${index + 1}: ${parsed.error}` });
+    }
+
+    const key = `${parsed.value.regimentalNumber}|${parsed.value.date}`;
+    if (seenKeys.has(key)) {
+      return res.status(400).json({ error: `Duplicate attendance entry for ${parsed.value.regimentalNumber} on ${parsed.value.date}` });
+    }
+
+    seenKeys.add(key);
+    parsedItems.push(parsed.value);
+  }
+
+  const regimentalNumbers = Array.from(new Set(parsedItems.map((item) => item.regimentalNumber)));
   const cadets = await User.find({ regimentalNumber: { $in: regimentalNumbers }, role: 'cadet' }).lean();
   const cadetByRegimental = new Map(cadets.map((cadet) => [cadet.regimentalNumber, cadet]));
+  const missingCadets = regimentalNumbers.filter((regimentalNumber) => !cadetByRegimental.has(regimentalNumber));
+
+  if (missingCadets.length > 0) {
+    return res.status(404).json({ error: `Cadet not found: ${missingCadets.join(', ')}` });
+  }
+
+  let nextId = await nextAttendanceId();
   const updated = [];
 
-  for (const item of items) {
-    const regimentalNumber = String(item.regimentalNumber || '').trim();
-    const date = String(item.date || '').trim();
-    const status = String(item.status || '').trim();
-    const note = String(item.note || '');
-
-    if (!regimentalNumber || !date || !status) {
-      continue;
-    }
-
-    const cadet = cadetByRegimental.get(regimentalNumber);
-    if (!cadet) {
-      continue;
-    }
-
-    const existing = await Attendance.findOne({ regimentalNumber, date });
+  for (const item of parsedItems) {
+    const cadet = cadetByRegimental.get(item.regimentalNumber);
+    const existing = await Attendance.findOne({ regimentalNumber: item.regimentalNumber, date: item.date });
     const record = await Attendance.findOneAndUpdate(
-      { regimentalNumber, date },
+      { regimentalNumber: item.regimentalNumber, date: item.date },
       {
         $set: {
-          id: existing?.id || await nextAttendanceId(),
-          regimentalNumber,
+          id: existing?.id || nextId,
+          regimentalNumber: item.regimentalNumber,
           cadetName: cadet.name,
-          date,
-          status,
-          note,
+          date: item.date,
+          status: item.status,
+          note: item.note,
           recordedBy: req.user.regimentalNumber,
           recordedAt: new Date()
         }
       },
-      { new: true, upsert: true, runValidators: true }
+      { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
     );
 
+    if (!existing) nextId += 1;
     updated.push(normalizeAttendance(record));
   }
 
-  res.status(201).json({ updated, count: updated.length });
+  res.status(201).json({ updated, count: updated.length, message: `Attendance saved for ${updated.length} cadet${updated.length === 1 ? '' : 's'}` });
 });
 
 router.get('/analytics', authorizeAdmin, async (req, res) => {
@@ -155,96 +244,38 @@ router.get('/analytics', authorizeAdmin, async (req, res) => {
   });
 
   const dailyRecords = attendance.filter((record) => record.date === today);
+  const dailyPresent = dailyRecords.filter((record) => record.status === 'Present').length;
   const dailyTotals = {
-    present: dailyRecords.filter((record) => record.status === 'Present').length,
+    present: dailyPresent,
     absent: dailyRecords.filter((record) => record.status === 'Absent').length,
     late: dailyRecords.filter((record) => record.status === 'Late').length,
     totalRecords: dailyRecords.length,
     date: today,
-    percentage: dailyRecords.length > 0 ? Math.round((dailyRecords.filter((record) => record.status === 'Present').length / dailyRecords.length) * 100) : 0
+    percentage: dailyRecords.length > 0 ? Math.round((dailyPresent / dailyRecords.length) * 100) : 0
   };
 
-  const dailyByGender = { SD: { present: 0, absent: 0, late: 0, total: 0 }, SW: { present: 0, absent: 0, late: 0, total: 0 }, UNKNOWN: { present: 0, absent: 0, late: 0, total: 0 } };
-  const dailyByBatch = {};
-  dailyRecords.forEach((rec) => {
-    const rn = rec.regimentalNumber || '';
-    const genderMatch = rn.match(/(SD|SW)/i);
-    const gender = genderMatch ? genderMatch[0].toUpperCase() : 'UNKNOWN';
-    const batchMatch = rn.match(/(20\d{2})/);
-    const batch = batchMatch ? batchMatch[0] : 'unknown';
-
-    if (!dailyByBatch[batch]) dailyByBatch[batch] = { present: 0, absent: 0, late: 0, total: 0 };
-    dailyByBatch[batch].total += 1;
-    dailyByGender[gender] = dailyByGender[gender] || { present: 0, absent: 0, late: 0, total: 0 };
-    dailyByGender[gender].total += 1;
-
-    if (rec.status === 'Present') {
-      dailyByBatch[batch].present += 1;
-      dailyByGender[gender].present += 1;
-    } else if (rec.status === 'Absent') {
-      dailyByBatch[batch].absent += 1;
-      dailyByGender[gender].absent += 1;
-    } else if (rec.status === 'Late') {
-      dailyByBatch[batch].late += 1;
-      dailyByGender[gender].late += 1;
-    }
-  });
-
-  Object.keys(dailyByBatch).forEach((b) => {
-    const g = dailyByBatch[b];
-    g.percentage = g.total > 0 ? Math.round((g.present / g.total) * 100) : 0;
-  });
-  Object.keys(dailyByGender).forEach((gk) => {
-    const g = dailyByGender[gk];
-    g.percentage = g.total > 0 ? Math.round((g.present / g.total) * 100) : 0;
-  });
-
+  const totalPresent = attendance.filter((record) => record.status === 'Present').length;
   const totals = {
-    present: attendance.filter((record) => record.status === 'Present').length,
+    present: totalPresent,
     absent: attendance.filter((record) => record.status === 'Absent').length,
     late: attendance.filter((record) => record.status === 'Late').length,
     totalRecords: attendance.length,
-    percentage: attendance.length > 0 ? Math.round((attendance.filter((record) => record.status === 'Present').length / attendance.length) * 100) : 0
+    percentage: attendance.length > 0 ? Math.round((totalPresent / attendance.length) * 100) : 0
   };
 
-  const byGender = { SD: { present: 0, absent: 0, late: 0, total: 0 }, SW: { present: 0, absent: 0, late: 0, total: 0 }, UNKNOWN: { present: 0, absent: 0, late: 0, total: 0 } };
-  const byBatch = {};
+  const dailyBreakdowns = buildAttendanceBreakdowns(dailyRecords);
+  const overallBreakdowns = buildAttendanceBreakdowns(attendance);
 
-  attendance.forEach((rec) => {
-    const rn = rec.regimentalNumber || '';
-    const genderMatch = rn.match(/(SD|SW)/i);
-    const gender = genderMatch ? genderMatch[0].toUpperCase() : 'UNKNOWN';
-    const batchMatch = rn.match(/(20\d{2})/);
-    const batch = batchMatch ? batchMatch[0] : 'unknown';
-
-    if (!byBatch[batch]) byBatch[batch] = { present: 0, absent: 0, late: 0, total: 0 };
-
-    byBatch[batch].total += 1;
-    byGender[gender] = byGender[gender] || { present: 0, absent: 0, late: 0, total: 0 };
-    byGender[gender].total += 1;
-
-    if (rec.status === 'Present') {
-      byBatch[batch].present += 1;
-      byGender[gender].present += 1;
-    } else if (rec.status === 'Absent') {
-      byBatch[batch].absent += 1;
-      byGender[gender].absent += 1;
-    } else if (rec.status === 'Late') {
-      byBatch[batch].late += 1;
-      byGender[gender].late += 1;
-    }
+  res.json({
+    summary,
+    totals,
+    dailyTotals,
+    dailyRecords,
+    dailyByBatch: dailyBreakdowns.byBatch,
+    dailyByGender: dailyBreakdowns.byGender,
+    byBatch: overallBreakdowns.byBatch,
+    byGender: overallBreakdowns.byGender
   });
-
-  Object.keys(byBatch).forEach((b) => {
-    const g = byBatch[b];
-    g.percentage = g.total > 0 ? Math.round((g.present / g.total) * 100) : 0;
-  });
-  Object.keys(byGender).forEach((gk) => {
-    const g = byGender[gk];
-    g.percentage = g.total > 0 ? Math.round((g.present / g.total) * 100) : 0;
-  });
-
-  res.json({ summary, totals, dailyTotals, dailyRecords, dailyByBatch, dailyByGender, byBatch, byGender });
 });
 
 module.exports = router;

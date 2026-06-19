@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema(
       default: 'cadet',
       index: true
     },
+    rank: {
+      type: String,
+      enum: ['Cadet', 'Lance Corporal', 'Corporal', 'Sergeant', 'Cadet Under Officer', 'Cadet Senior Under Officer'],
+      default: 'Cadet',
+      trim: true
+    },
     passwordHash: {
       type: String,
       required: true

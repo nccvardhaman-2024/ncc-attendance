@@ -21,26 +21,27 @@ function legacySha256(password) {
 }
 
 router.post('/login', async (req, res) => {
-  const regimentalNumber = String(req.body.regimentalNumber || '').trim();
+  const regimentalNumber = String(req.body.regimentalNumber || '').trim().toUpperCase();
   const password = String(req.body.password || '');
 
   if (!regimentalNumber || !password) {
     return res.status(400).json({ error: 'Regimental number and password are required' });
   }
 
-  if (regimentalNumber === ADMIN_REGIMENTAL && password === ADMIN_PASSWORD) {
+  if (regimentalNumber === String(ADMIN_REGIMENTAL).trim().toUpperCase() && password === ADMIN_PASSWORD) {
     const token = jwt.sign(
       {
         regimentalNumber: ADMIN_REGIMENTAL,
         name: ADMIN_NAME,
         role: 'admin',
-        unit: ADMIN_UNIT
+        unit: ADMIN_UNIT,
+        rank: 'ANO'
       },
       JWT_SECRET,
       { expiresIn: '8h' }
     );
 
-    return res.json({ token, user: { regimentalNumber: ADMIN_REGIMENTAL, name: ADMIN_NAME, role: 'admin', unit: ADMIN_UNIT } });
+    return res.json({ token, user: { regimentalNumber: ADMIN_REGIMENTAL, name: ADMIN_NAME, role: 'admin', unit: ADMIN_UNIT, rank: 'ANO' } });
   }
 
   const user = await User.findOne({ regimentalNumber, role: 'cadet' });
@@ -67,13 +68,14 @@ router.post('/login', async (req, res) => {
       regimentalNumber: user.regimentalNumber,
       name: user.name,
       role: user.role,
-      unit: user.unit
+      unit: user.unit,
+      rank: user.rank || 'Cadet'
     },
     JWT_SECRET,
     { expiresIn: '8h' }
   );
 
-  res.json({ token, user: { regimentalNumber: user.regimentalNumber, name: user.name, role: user.role, unit: user.unit } });
+  res.json({ token, user: { regimentalNumber: user.regimentalNumber, name: user.name, role: user.role, unit: user.unit, rank: user.rank || 'Cadet' } });
 });
 
 router.get('/me', (req, res) => {
