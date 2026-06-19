@@ -2,12 +2,26 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchCadets, updateCadet } from '../services/api';
 import RankInsignia from '../components/RankInsignia';
 
+function getRankAbbr(rank) {
+  switch (rank) {
+    case 'Cadet': return 'CDT';
+    case 'Lance Corporal': return 'L/CPL';
+    case 'Corporal': return 'CPL';
+    case 'Sergeant': return 'SGT';
+    case 'Company Quarter Master Sergeant': return 'CQMS';
+    case 'Company Sergeant Major': return 'CSM';
+    case 'Junior Under Officer': return 'JUO';
+    case 'Cadet Senior Under Officer': return 'CSUO';
+    default: return 'CDT';
+  }
+}
+
 export default function CadetListPage({ token }) {
   const [cadets, setCadets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBatch, setSelectedBatch] = useState('all');
   const [selectedCadet, setSelectedCadet] = useState(null);
-  const [editForm, setEditForm] = useState({ regimentalNumber: '', name: '', unit: '', rank: 'Cadet', password: '' });
+  const [editForm, setEditForm] = useState({ regimentalNumber: '', name: '', rollno: '', unit: '', rank: 'Cadet', password: '' });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -31,6 +45,7 @@ export default function CadetListPage({ token }) {
     setEditForm({
       regimentalNumber: cadet.regimentalNumber,
       name: cadet.name,
+      rollno: cadet.rollno || '',
       unit: cadet.unit,
       rank: cadet.rank || 'Cadet',
       password: ''
@@ -54,6 +69,7 @@ export default function CadetListPage({ token }) {
     const payload = {
       regimentalNumber: editForm.regimentalNumber,
       name: editForm.name,
+      rollno: editForm.rollno,
       unit: editForm.unit,
       rank: editForm.rank,
       password: editForm.password
@@ -67,7 +83,7 @@ export default function CadetListPage({ token }) {
 
     setMessage('Cadet updated successfully.');
     setSelectedCadet(null);
-    setEditForm({ regimentalNumber: '', name: '', unit: '', rank: 'Cadet', password: '' });
+    setEditForm({ regimentalNumber: '', name: '', rollno: '', unit: '', rank: 'Cadet', password: '' });
     refreshCadets();
   }
 
@@ -144,6 +160,16 @@ export default function CadetListPage({ token }) {
               />
             </label>
             <label className="block text-sm font-semibold text-slate-700">
+              Roll No
+              <input
+                name="rollno"
+                value={editForm.rollno}
+                onChange={handleInputChange}
+                className="ncc-input mt-2"
+                required
+              />
+            </label>
+            <label className="block text-sm font-semibold text-slate-700">
               Unit
               <input
                 name="unit"
@@ -166,7 +192,9 @@ export default function CadetListPage({ token }) {
                 <option value="Lance Corporal">Lance Corporal (L/CPL)</option>
                 <option value="Corporal">Corporal (CPL)</option>
                 <option value="Sergeant">Sergeant (SGT)</option>
-                <option value="Cadet Under Officer">Cadet Under Officer (CUO)</option>
+                <option value="Company Quarter Master Sergeant">Company Quarter Master Sergeant (CQMS)</option>
+                <option value="Company Sergeant Major">Company Sergeant Major (CSM)</option>
+                <option value="Junior Under Officer">Junior Under Officer (JUO)</option>
                 <option value="Cadet Senior Under Officer">Cadet Senior Under Officer (CSUO)</option>
               </select>
             </label>
@@ -225,10 +253,11 @@ export default function CadetListPage({ token }) {
                       <p className="font-semibold text-slate-900 flex items-center gap-1.5 flex-wrap">
                         {cadet.name}
                         <span className="text-[10px] font-extrabold uppercase tracking-wider text-[var(--ncc-gold)] bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
-                          {cadet.rank === 'Cadet' ? 'CDT' : cadet.rank === 'Lance Corporal' ? 'L/CPL' : cadet.rank === 'Corporal' ? 'CPL' : cadet.rank === 'Sergeant' ? 'SGT' : cadet.rank === 'Cadet Under Officer' ? 'CUO' : 'CSUO'}
+                          {getRankAbbr(cadet.rank)}
                         </span>
                       </p>
                       <p className="mt-1 break-all text-xs text-slate-500 font-bold uppercase tracking-wider">Regimental No: {cadet.regimentalNumber}</p>
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Roll No: {cadet.rollno || 'N/A'}</p>
                       <p className="text-sm text-slate-600 font-medium">Unit: {cadet.unit}</p>
                     </div>
                   </div>

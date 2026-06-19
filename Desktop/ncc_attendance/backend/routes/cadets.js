@@ -6,12 +6,17 @@ const User = require('../models/User');
 
 const router = express.Router();
 const REGIMENTAL_PATTERN = /^[A-Z0-9/-]{4,32}$/;
+const ROLLNO_PATTERN = /^[A-Z0-9]{10}$/;
 
 function hashPassword(password) {
   return bcrypt.hashSync(password, 12);
 }
 
 function normalizeRegimentalNumber(value) {
+  return String(value || '').trim().toUpperCase();
+}
+
+function normalizeRollNumber(value) {
   return String(value || '').trim().toUpperCase();
 }
 
@@ -22,14 +27,23 @@ function cleanText(value, maxLength) {
 function validateCadetInput(body, requirePassword) {
   const regimentalNumber = normalizeRegimentalNumber(body.regimentalNumber);
   const name = cleanText(body.name, 80);
-  const rollno = cleanText(body.rollno, 80);
+  const rollno = normalizeRollNumber(body.rollno);
   const unit = cleanText(body.unit, 80);
   const rank = cleanText(body.rank, 80) || 'Cadet';
   const password = String(body.password || '');
 
-  const allowedRanks = ['Cadet', 'Lance Corporal', 'Corporal', 'Sergeant', 'Company Quarter Master Sergent', 'Company Sergeant Major', 'Junior Under Officer', 'Senior Under Officer'];
+  const allowedRanks = [
+    'Cadet',
+    'Lance Corporal',
+    'Corporal',
+    'Sergeant',
+    'Company Quarter Master Sergeant',
+    'Company Sergeant Major',
+    'Junior Under Officer',
+    'Cadet Senior Under Officer'
+  ];
 
-  if (!regimentalNumber || !name || !unit || (requirePassword && !password)) {
+  if (!regimentalNumber || !name || !rollno || !unit || (requirePassword && !password)) {
     return { error: 'All cadet details are required' };
   }
   if (rank && !allowedRanks.includes(rank)) {
@@ -38,6 +52,9 @@ function validateCadetInput(body, requirePassword) {
   if (!REGIMENTAL_PATTERN.test(regimentalNumber)) {
     return { error: 'Regimental number must be 4-32 characters and contain only letters, numbers, /, or -' };
   }
+  if (!ROLLNO_PATTERN.test(rollno)) {
+    return { error: 'Roll number must be exactly 10 alphanumeric characters' };
+  }
   if (password && password.length < 8) {
     return { error: requirePassword ? 'Cadet password must be at least 8 characters' : 'New password must be at least 8 characters' };
   }
@@ -45,7 +62,7 @@ function validateCadetInput(body, requirePassword) {
     return { error: 'Password cannot exceed 128 characters' };
   }
 
-  return { value: { regimentalNumber, name, unit, rank, password } };
+  return { value: { regimentalNumber, name, rollno, unit, rank, password } };
 }
 
 router.use(authenticate);
@@ -56,7 +73,7 @@ router.get('/', async (req, res) => {
   const attendance = await Attendance.find({}).lean();
   const today = new Date().toISOString().slice(0, 10);
 
-  const cadets = users.map(({ regimentalNumber, name, unit, rank }) => {
+  const cadets = users.map(({ regimentalNumber, name, rollno, unit, rank }) => {
     const records = attendance.filter((record) => record.regimentalNumber === regimentalNumber);
     const present = records.filter((record) => record.status === 'Present').length;
     const absent = records.filter((record) => record.status === 'Absent').length;
@@ -67,6 +84,7 @@ router.get('/', async (req, res) => {
     return {
       regimentalNumber,
       name,
+      rollno: rollno || '',
       unit,
       rank: rank || 'Cadet',
       totals: { present, absent, late, total, percentage },
@@ -83,22 +101,28 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: parsed.error });
   }
 
-  const { regimentalNumber, name, unit, rank, password } = parsed.value;
-  const existing = await User.findOne({ regimentalNumber });
+  const { regimentalNumber, name, rollno, unit, rank, password } = parsed.value;
+  const existing = await User.findOne({
+    $or: [{ regimentalNumber }, { rollno }]
+  });
   if (existing) {
-    return res.status(409).json({ error: 'Regimental number already exists' });
+    if (existing.regimentalNumber === regimentalNumber) {
+      return res.status(409).json({ error: 'Regimental number already exists' });
+    }
+    return res.status(409).json({ error: 'Roll number already exists' });
   }
 
   const cadet = await User.create({
     regimentalNumber,
     name,
+    rollno,
     unit,
     rank,
     role: 'cadet',
     passwordHash: hashPassword(password)
   });
 
-  res.status(201).json({ cadet: { regimentalNumber: cadet.regimentalNumber, name: cadet.name, unit: cadet.unit, rank: cadet.rank }, message: 'Cadet added successfully' });
+  res.status(201).json({ cadet: { regimentalNumber: cadet.regimentalNumber, name: cadet.name, rollno: cadet.rollno, unit: cadet.unit, rank: cadet.rank }, message: 'Cadet added successfully' });
 });
 
 router.put('/:regimentalNumber', async (req, res) => {
@@ -108,23 +132,27 @@ router.put('/:regimentalNumber', async (req, res) => {
     return res.status(400).json({ error: parsed.error });
   }
 
-  const { regimentalNumber, name, unit, rank, password } = parsed.value;
+  const { regimentalNumber, name, rollno, unit, rank, password } = parsed.value;
   const cadet = await User.findOne({ regimentalNumber: originalRegimentalNumber, role: 'cadet' });
   if (!cadet) {
     return res.status(404).json({ error: 'Cadet not found' });
   }
 
   const duplicate = await User.findOne({
-    regimentalNumber,
+    $or: [{ regimentalNumber }, { rollno }],
     role: 'cadet',
     _id: { $ne: cadet._id }
   });
   if (duplicate) {
-    return res.status(409).json({ error: 'New regimental number already exists' });
+    if (duplicate.regimentalNumber === regimentalNumber) {
+      return res.status(409).json({ error: 'New regimental number already exists' });
+    }
+    return res.status(409).json({ error: 'New roll number already exists' });
   }
 
   cadet.regimentalNumber = regimentalNumber;
   cadet.name = name;
+  cadet.rollno = rollno;
   cadet.unit = unit;
   cadet.rank = rank;
   if (password) {
@@ -137,7 +165,7 @@ router.put('/:regimentalNumber', async (req, res) => {
     { $set: { regimentalNumber, cadetName: name } }
   );
 
-  res.json({ cadet: { regimentalNumber, name, unit, rank }, message: 'Cadet updated successfully' });
+  res.json({ cadet: { regimentalNumber, name, rollno, unit, rank }, message: 'Cadet updated successfully' });
 });
 
 module.exports = router;

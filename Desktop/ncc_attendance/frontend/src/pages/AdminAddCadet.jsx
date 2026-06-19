@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createCadet } from '../services/api';
 
 export default function AddCadetPage({ token }) {
-  const [form, setForm] = useState({ regimentalNumber: '', name: '', unit: '', rank: 'Cadet', password: '' });
+  const [form, setForm] = useState({ regimentalNumber: '', name: '', rollno: '', unit: '', rank: 'Cadet', password: '' });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -18,7 +18,7 @@ export default function AddCadetPage({ token }) {
     }
 
     setMessage(`Cadet ${result.cadet.regimentalNumber} added successfully.`);
-    setForm({ regimentalNumber: '', name: '', unit: '', rank: 'Cadet', password: '' });
+    setForm({ regimentalNumber: '', name: '', rollno: '', unit: '', rank: 'Cadet', password: '' });
   }
 
   return (
@@ -89,7 +89,7 @@ export default function AddCadetPage({ token }) {
             <option value="Company Quarter Master Sergeant">Company Quarter Master Sergeant (CQMS)</option>
             <option value="Company Sergeant Major">Company Sergeant Major (CSM)</option>
             <option value="Junior Under Officer">Junior Under Officer (JUO)</option>
-            <option value="Senior Under Officer">Senior Under Officer (SUO)</option>
+            <option value="Cadet Senior Under Officer">Cadet Senior Under Officer (CSUO)</option>
           </select>
         </div>
 

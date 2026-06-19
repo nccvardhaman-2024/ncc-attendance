@@ -11,6 +11,58 @@ export default function RankInsignia({ rank, className = 'w-16 h-16' }) {
 
   // Render SVG based on rank
   switch (normalizedRank) {
+    case 'junior under officer':
+    case 'juo':
+      // Red shoulder slide with 1 gold horizontal bar
+      return (
+        <svg viewBox="0 0 90 130" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Shoulder slide base */}
+          <rect x="5" y="5" width="80" height="120" rx="6" fill={redBase} stroke={goldMetal} strokeWidth="3" />
+          
+          {/* Gold Bar */}
+          <rect x="15" y="55" width="60" height="10" rx="1" fill={goldMetal} />
+          
+          {/* Metal mini star or dot at top */}
+          <circle cx="45" cy="20" r="5" fill={goldMetal} />
+          <path d="M45 12 L48 18 H42 L45 12Z" fill={goldMetal} />
+          
+          <text x="45" y="112" fill={goldMetal} fontSize="11" fontWeight="bold" textAnchor="middle" letterSpacing="1.5">J.U.O.</text>
+        </svg>
+      );
+
+    case 'company quarter master sergeant':
+    case 'cqms':
+      // Three Red chevrons with a gold key above
+      return (
+        <svg viewBox="0 0 100 120" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="90" height="110" rx="10" fill={darkNavy} stroke={goldMetal} strokeWidth="2" />
+          <path d="M20 30 L50 60 L80 30" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M20 48 L50 78 L80 48" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M20 66 L50 96 L80 66" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Key Symbol */}
+          <circle cx="50" cy="18" r="4" stroke={goldMetal} strokeWidth="2" />
+          <line x1="50" y1="22" x2="50" y2="28" stroke={goldMetal} strokeWidth="2" />
+          <line x1="50" y1="25" x2="54" y2="25" stroke={goldMetal} strokeWidth="2" />
+          <line x1="50" y1="28" x2="54" y2="28" stroke={goldMetal} strokeWidth="2" />
+          <text x="50" y="112" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" letterSpacing="0.5">CQMS</text>
+        </svg>
+      );
+
+    case 'company sergeant major':
+    case 'csm':
+      // Three Red chevrons with a gold star/badge above
+      return (
+        <svg viewBox="0 0 100 120" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="5" y="5" width="90" height="110" rx="10" fill={darkNavy} stroke={goldMetal} strokeWidth="2" />
+          <path d="M20 30 L50 60 L80 30" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M20 48 L50 78 L80 48" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M20 66 L50 96 L80 66" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Star/Crown style badge */}
+          <path d="M50 10 L53 18 L61 18 L55 23 L57 31 L50 26 L43 31 L45 23 L39 18 L47 18 Z" fill={goldMetal} />
+          <text x="50" y="112" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" letterSpacing="0.5">CSM</text>
+        </svg>
+      );
+
     case 'lance corporal':
       // One Red chevron pointing down
       return (
