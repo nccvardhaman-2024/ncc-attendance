@@ -19,7 +19,7 @@ const allowedOrigins = (process.env.FRONTEND_URL || '')
   .filter(Boolean);
 
 if (!isProduction) {
-  allowedOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
+  allowedOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173', 'https://ncc-attendance.nccvardhaman.workers.dev');
 }
 
 function hasUnsafeMongoKey(value) {

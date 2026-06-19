@@ -22,11 +22,12 @@ function cleanText(value, maxLength) {
 function validateCadetInput(body, requirePassword) {
   const regimentalNumber = normalizeRegimentalNumber(body.regimentalNumber);
   const name = cleanText(body.name, 80);
+  const rollno = cleanText(body.rollno, 80);
   const unit = cleanText(body.unit, 80);
   const rank = cleanText(body.rank, 80) || 'Cadet';
   const password = String(body.password || '');
 
-  const allowedRanks = ['Cadet', 'Lance Corporal', 'Corporal', 'Sergeant', 'Cadet Under Officer', 'Cadet Senior Under Officer'];
+  const allowedRanks = ['Cadet', 'Lance Corporal', 'Corporal', 'Sergeant', 'Company Quarter Master Sergent', 'Company Sergeant Major', 'Junior Under Officer', 'Senior Under Officer'];
 
   if (!regimentalNumber || !name || !unit || (requirePassword && !password)) {
     return { error: 'All cadet details are required' };
