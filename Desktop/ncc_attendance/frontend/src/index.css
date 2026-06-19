@@ -93,7 +93,7 @@ button {
 
   /* Panel with glassmorphism styling - SaaS Light */
   .ncc-panel {
-    @apply relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_8px_30px_rgba(15, 23, 42, 0.03)] backdrop-blur-xl transition-all duration-300;
+    @apply relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 p-6 shadow-[0_8px_30px_rgba(15, _0, _0, _0.1)] backdrop-blur-xl transition-all duration-300;
   }
 
   .ncc-panel::before {
