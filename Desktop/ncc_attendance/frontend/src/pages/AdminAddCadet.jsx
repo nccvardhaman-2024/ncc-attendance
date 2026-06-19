@@ -53,6 +53,17 @@ export default function AddCadetPage({ token }) {
         </div>
 
         <div>
+          <label className="block text-sm font-semibold text-slate-700">Roll No</label>
+          <input
+            value={form.rollno}
+            onChange={(e) => setForm({ ...form, rollno: e.target.value })}
+            placeholder="Enter the Roll No"
+            className="ncc-input"
+            required
+          />
+        </div>
+
+        <div>
           <label className="block text-sm font-semibold text-slate-700">Unit</label>
           <input
             value={form.unit}
@@ -75,8 +86,10 @@ export default function AddCadetPage({ token }) {
             <option value="Lance Corporal">Lance Corporal (L/CPL)</option>
             <option value="Corporal">Corporal (CPL)</option>
             <option value="Sergeant">Sergeant (SGT)</option>
-            <option value="Cadet Under Officer">Cadet Under Officer (CUO)</option>
-            <option value="Cadet Senior Under Officer">Cadet Senior Under Officer (CSUO)</option>
+            <option value="Company Quarter Master Sergeant">Company Quarter Master Sergeant (CQMS)</option>
+            <option value="Company Sergeant Major">Company Sergeant Major (CSM)</option>
+            <option value="Junior Under Officer">Junior Under Officer (JUO)</option>
+            <option value="Senior Under Officer">Senior Under Officer (SUO)</option>
           </select>
         </div>
 
