@@ -127,23 +127,33 @@ function App() {
       {!isLoginScreen && <header className="ncc-app-header sticky top-0 z-20">
         <div className="relative mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <Logo className="h-11 w-11" />
+            <div className="flex items-center gap-3">
+              <Logo className="h-12 w-12" />
+              {user && user.role === 'admin' && (
+                <>
+                  <div className="h-8 w-[1px] bg-white/20" />
+                  <img src={vceLogo} alt="Vardhaman College of Engineering" className="h-11 object-contain" />
+                </>
+              )}
+            </div>
             <div>
-              <p className="font-display text-sm font-extrabold text-slate-900">NCC Vardhaman</p>
+              <p className="font-display text-sm font-extrabold text-white">NCC Vardhaman</p>
               {user ? (
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--ncc-navy)]">{user.role === 'admin' ? 'Admin command' : 'Cadet portal'}</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-sky-400">{user.role === 'admin' ? 'Admin command' : 'Cadet portal'}</p>
               ) : (
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Attendance command</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-sky-400">Attendance command</p>
               )}
             </div>
           </div>
 
-          {/* VCE Logo - Centered absolutely on sm+ screens, mixed cleanly without card background/borders */}
-          <div className="order-3 mt-1.5 flex w-full justify-center sm:order-none sm:mt-0 sm:w-auto sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:z-10 pointer-events-none">
-            <div className="flex h-11 items-center justify-center transition-all duration-300 hover:scale-105 pointer-events-auto">
-              <img src={vceLogo} alt="Vardhaman College of Engineering" className="h-8 object-contain" />
+          {/* VCE Logo - Centered absolutely on sm+ screens, mixed cleanly without card background/borders. Only visible if not admin. */}
+          {(!user || user.role !== 'admin') && (
+            <div className="order-3 mt-1.5 flex w-full justify-center sm:order-none sm:mt-0 sm:w-auto sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:z-10 pointer-events-none">
+              <div className="flex h-12 items-center justify-center transition-all duration-300 hover:scale-105 pointer-events-auto">
+                <img src={vceLogo} alt="Vardhaman College of Engineering" className="h-11 object-contain" />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center gap-3">
             {user ? (
@@ -153,7 +163,7 @@ function App() {
                     <button
                       key={item.key}
                       onClick={() => handleNavigate(item.key)}
-                      className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${dashboardSection === item.key ? 'bg-[#0f172a] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+                      className={`rounded-xl px-4 py-2 text-sm font-bold transition-all ${dashboardSection === item.key ? 'bg-white/15 text-white border border-white/10 shadow-sm' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
                     >
                       {item.label}
                     </button>
@@ -161,13 +171,13 @@ function App() {
                 </nav>
 
                 <div className="flex items-center gap-3">
-                  <span className="hidden text-sm text-slate-655 text-slate-600 sm:inline">Welcome, {user.name}</span>
-                  <button onClick={handleLogout} className="ncc-primary !px-4 !py-2.5 sm:!px-5">
+                  <span className="hidden text-sm text-slate-300 sm:inline">Welcome, {user.name}</span>
+                  <button onClick={handleLogout} className="rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 px-4 py-2.5 sm:px-5 text-xs font-bold uppercase tracking-wider text-white transition-all duration-300 hover:-translate-y-0.5 shadow-sm">
                     Logout
                   </button>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-slate-200 lg:hidden"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-white/20 lg:hidden"
                     onClick={() => setMobileMenuOpen((open) => !open)}
                   >
                     Menu
@@ -176,7 +186,7 @@ function App() {
                 </div>
               </>
             ) : (
-              <button onClick={() => setScreen('login')} className="ncc-primary !rounded-xl !px-5 !py-2.5">
+              <button onClick={() => setScreen('login')} className="rounded-xl bg-[#ef4444] hover:bg-[#dc2626] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all duration-300 hover:-translate-y-0.5">
                 Sign in
               </button>
             )}
@@ -184,13 +194,13 @@ function App() {
         </div>
 
         {user && mobileMenuOpen && (
-          <div className="border-t border-slate-200 bg-white/95 px-4 py-4 shadow-lg lg:hidden">
+          <div className="border-t border-slate-800 bg-[#0d1530] px-4 py-4 shadow-lg lg:hidden">
             <nav className="space-y-2">
               {(user.role === 'admin' ? adminNavItems : cadetNavItems).map((item) => (
                 <button
                   key={item.key}
                   onClick={() => handleNavigate(item.key)}
-                  className={`w-full rounded-xl px-4 py-3 text-left text-sm font-bold transition ${dashboardSection === item.key ? 'bg-[#0f172a] text-white' : 'bg-slate-50 text-slate-700 hover:bg-slate-100'}`}
+                  className={`w-full rounded-xl px-4 py-3 text-left text-sm font-bold transition ${dashboardSection === item.key ? 'bg-white/15 text-white border border-white/10' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}
                 >
                   {item.label}
                 </button>
