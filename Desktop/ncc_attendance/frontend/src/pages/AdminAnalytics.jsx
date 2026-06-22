@@ -3,6 +3,20 @@ import { fetchAnalytics } from '../services/api';
 import Logo from '../components/Logo';
 import RankInsignia from '../components/RankInsignia';
 
+function getRankAbbr(rank) {
+  switch (rank) {
+    case 'Cadet': return 'CDT';
+    case 'Lance Corporal': return 'L/CPL';
+    case 'Corporal': return 'CPL';
+    case 'Sergeant': return 'SGT';
+    case 'Company Quarter Master Sergeant': return 'CQMS';
+    case 'Company Sergeant Major': return 'CSM';
+    case 'Junior Under Officer': return 'JUO';
+    case 'Senior Under Officer': return 'SUO';
+    default: return 'CDT';
+  }
+}
+
 export default function AnalyticsPage({ token }) {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -155,7 +169,7 @@ export default function AnalyticsPage({ token }) {
                       <p className="font-semibold text-slate-900 flex items-center gap-1.5 flex-wrap">
                         {c.name}
                         <span className="text-[9px] font-extrabold uppercase tracking-wider text-[var(--ncc-gold)] bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
-                          {c.rank === 'Cadet' ? 'CDT' : c.rank === 'Lance Corporal' ? 'L/CPL' : c.rank === 'Corporal' ? 'CPL' : c.rank === 'Sergeant' ? 'SGT' : c.rank === 'Cadet Under Officer' ? 'CUO' : 'CSUO'}
+                          {getRankAbbr(c.rank)}
                         </span>
                       </p>
                       <p className="break-words text-xs text-slate-500 mt-1">{c.regimentalNumber} • {c.unit}</p>

@@ -1,4 +1,5 @@
 import React from 'react';
+import emblemImg from '../assets/Emblem.png';
 
 export default function RankInsignia({ rank, className = 'w-16 h-16' }) {
   const normalizedRank = (rank || '').toLowerCase().trim();
@@ -32,34 +33,35 @@ export default function RankInsignia({ rank, className = 'w-16 h-16' }) {
 
     case 'company quarter master sergeant':
     case 'cqms':
-      // Three Red chevrons with a gold key above
+      // Three Red chevrons with a small emblem above
       return (
         <svg viewBox="0 0 100 120" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="5" y="5" width="90" height="110" rx="10" fill={darkNavy} stroke={goldMetal} strokeWidth="2" />
-          <path d="M20 30 L50 60 L80 30" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M20 48 L50 78 L80 48" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M20 66 L50 96 L80 66" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Key Symbol */}
-          <circle cx="50" cy="18" r="4" stroke={goldMetal} strokeWidth="2" />
-          <line x1="50" y1="22" x2="50" y2="28" stroke={goldMetal} strokeWidth="2" />
-          <line x1="50" y1="25" x2="54" y2="25" stroke={goldMetal} strokeWidth="2" />
-          <line x1="50" y1="28" x2="54" y2="28" stroke={goldMetal} strokeWidth="2" />
+          
+          {/* Chevrons */}
+          <path d="M22 50 L50 74 L78 50" stroke={redBase} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M22 65 L50 89 L78 65" stroke={redBase} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M22 80 L50 104 L78 80" stroke={redBase} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+          
+          {/* Small Indian National Emblem Image at the top */}
+          <image href={emblemImg} x="35" y="8" width="30" height="40" />
+          
           <text x="50" y="112" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" letterSpacing="0.5">CQMS</text>
         </svg>
       );
 
     case 'company sergeant major':
     case 'csm':
-      // Three Red chevrons with a gold star/badge above
+      // Indian National Emblem on a premium black strip (gold border)
       return (
         <svg viewBox="0 0 100 120" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="5" width="90" height="110" rx="10" fill={darkNavy} stroke={goldMetal} strokeWidth="2" />
-          <path d="M20 30 L50 60 L80 30" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M20 48 L50 78 L80 48" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M20 66 L50 96 L80 66" stroke={redBase} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" />
-          {/* Star/Crown style badge */}
-          <path d="M50 10 L53 18 L61 18 L55 23 L57 31 L50 26 L43 31 L45 23 L39 18 L47 18 Z" fill={goldMetal} />
-          <text x="50" y="112" fill="white" fontSize="10" fontWeight="bold" textAnchor="middle" letterSpacing="0.5">CSM</text>
+          {/* Premium Black Fabric Slide Base */}
+          <rect x="5" y="5" width="90" height="110" rx="10" fill="#0A0A0A" stroke={goldMetal} strokeWidth="2.5" />
+          
+          {/* Indian National Emblem Image */}
+          <image href={emblemImg} x="20" y="15" width="60" height="80" />
+          
+          <text x="50" y="112" fill={goldMetal} fontSize="11" fontWeight="bold" textAnchor="middle" letterSpacing="1">CSM</text>
         </svg>
       );
 
@@ -120,21 +122,21 @@ export default function RankInsignia({ rank, className = 'w-16 h-16' }) {
     case 'cadet senior under officer':
     case 'senior under officer':
     case 'csuo':
-      // Red shoulder slide with 3 gold horizontal bars
+    case 'suo':
+      // Red shoulder slide with 2 gold horizontal bars (modified to 2 lines per instructions)
       return (
         <svg viewBox="0 0 90 130" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Shoulder slide base */}
           <rect x="5" y="5" width="80" height="120" rx="6" fill={redBase} stroke={goldMetal} strokeWidth="3" />
           
-          {/* Gold Bars */}
-          <rect x="15" y="35" width="60" height="10" rx="1" fill={goldMetal} />
-          <rect x="15" y="55" width="60" height="10" rx="1" fill={goldMetal} />
-          <rect x="15" y="75" width="60" height="10" rx="1" fill={goldMetal} />
+          {/* Gold Bars (2 lines now) */}
+          <rect x="15" y="45" width="60" height="10" rx="1" fill={goldMetal} />
+          <rect x="15" y="65" width="60" height="10" rx="1" fill={goldMetal} />
           
           {/* Metal mini star or dot at top */}
           <circle cx="45" cy="18" r="5" fill={goldMetal} />
           
-          <text x="45" y="112" fill={goldMetal} fontSize="11" fontWeight="bold" textAnchor="middle" letterSpacing="1.2">C.S.U.O.</text>
+          <text x="45" y="112" fill={goldMetal} fontSize="11" fontWeight="bold" textAnchor="middle" letterSpacing="1.2">S.U.O.</text>
         </svg>
       );
 

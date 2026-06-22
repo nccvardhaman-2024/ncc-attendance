@@ -239,6 +239,7 @@ router.get('/analytics', authorizeAdmin, async (req, res) => {
       regimentalNumber: cadet.regimentalNumber,
       name: cadet.name,
       unit: cadet.unit,
+      rank: cadet.rank || 'Cadet',
       totals: { present, absent, late, total, percentage }
     };
   });

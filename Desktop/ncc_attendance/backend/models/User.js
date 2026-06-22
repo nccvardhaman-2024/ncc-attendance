@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
     },
     rank: {
       type: String,
-      enum: ['Cadet', 'Lance Corporal', 'Corporal', 'Sergeant', 'Company Quarter Master Sergeant', 'Company Sergeant Major', 'Junior Under Officer', 'Cadet Senior Under Officer'],
+      enum: ['Cadet', 'Lance Corporal', 'Corporal', 'Sergeant', 'Company Quarter Master Sergeant', 'Company Sergeant Major', 'Junior Under Officer', 'Senior Under Officer'],
       default: 'Cadet',
       trim: true
     },

@@ -40,7 +40,7 @@ function validateCadetInput(body, requirePassword) {
     'Company Quarter Master Sergeant',
     'Company Sergeant Major',
     'Junior Under Officer',
-    'Cadet Senior Under Officer'
+    'Senior Under Officer'
   ];
 
   if (!regimentalNumber || !name || !rollno || !unit || (requirePassword && !password)) {

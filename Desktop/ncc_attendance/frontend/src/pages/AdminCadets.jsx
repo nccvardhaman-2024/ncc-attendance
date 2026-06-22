@@ -11,7 +11,7 @@ function getRankAbbr(rank) {
     case 'Company Quarter Master Sergeant': return 'CQMS';
     case 'Company Sergeant Major': return 'CSM';
     case 'Junior Under Officer': return 'JUO';
-    case 'Cadet Senior Under Officer': return 'CSUO';
+    case 'Senior Under Officer': return 'SUO';
     default: return 'CDT';
   }
 }
@@ -195,7 +195,7 @@ export default function CadetListPage({ token }) {
                 <option value="Company Quarter Master Sergeant">Company Quarter Master Sergeant (CQMS)</option>
                 <option value="Company Sergeant Major">Company Sergeant Major (CSM)</option>
                 <option value="Junior Under Officer">Junior Under Officer (JUO)</option>
-                <option value="Cadet Senior Under Officer">Cadet Senior Under Officer (CSUO)</option>
+                <option value="Senior Under Officer">Senior Under Officer (SUO)</option>
               </select>
             </label>
             <label className="block text-sm font-semibold text-slate-700">

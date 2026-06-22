@@ -89,7 +89,7 @@ export default function AddCadetPage({ token }) {
             <option value="Company Quarter Master Sergeant">Company Quarter Master Sergeant (CQMS)</option>
             <option value="Company Sergeant Major">Company Sergeant Major (CSM)</option>
             <option value="Junior Under Officer">Junior Under Officer (JUO)</option>
-            <option value="Cadet Senior Under Officer">Cadet Senior Under Officer (CSUO)</option>
+            <option value="Senior Under Officer">Senior Under Officer (SUO)</option>
           </select>
         </div>
 
